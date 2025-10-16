@@ -1,5 +1,31 @@
+# Gerenciadores de pacotes
 elpaca/
 builds/
 repos/
 straight/
+
+# Arquivos temporários e backup
+backups/
+auto-saves/
+*~
+\#*\#
+*.elc
+auto-save-list/
+tramp
+
+# Arquivos do Vim/Neovim
 .*.swp
+*.swp
+*.swo
+
+# Diretórios específicos do Emacs
+.cache/
+transient/
+url/
+session.*
+recentf
+bookmarks
+ido.last
+smex-items
+projectile-bookmarks.eld
+projectile.cache
