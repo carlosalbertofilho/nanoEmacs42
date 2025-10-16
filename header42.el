@@ -217,16 +217,26 @@
   (interactive)
   ;; Hook para atualizar automaticamente ao salvar
   (add-hook 'before-save-hook 'header-42-update)
-  ;; Atalho F1 para inserir/atualizar header
-  (global-set-key (kbd "<f5>") 'stdheader)
-  (message "Header 42 habilitado! Use F1 para inserir/atualizar."))
+  ;; Atalho F5 para inserir/atualizar header usando general.el
+  (when (fboundp 'general-define-key)
+    (general-define-key
+     "<f5>" 'stdheader))
+  ;; Fallback para versões sem general.el
+  (unless (fboundp 'general-define-key)
+    (global-set-key (kbd "<f5>") 'stdheader))
+  (message "Header 42 habilitado! Use F5 para inserir/atualizar."))
 
 ;;;###autoload
 (defun header-42-disable ()
   "Desabilita o header 42."
   (interactive)
   (remove-hook 'before-save-hook 'header-42-update)
-  (global-set-key (kbd "<f5>") nil)
+  ;; Remove atalho usando general.el ou fallback
+  (when (fboundp 'general-define-key)
+    (general-define-key
+     "<f5>" nil))
+  (unless (fboundp 'general-define-key)
+    (global-set-key (kbd "<f5>") nil))
   (message "Header 42 desabilitado."))
 
 (provide 'header42)
