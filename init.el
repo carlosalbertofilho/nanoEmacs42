@@ -423,6 +423,60 @@
   ) ;; Fecha o use-package consult
 
 ;; =============================================================================
+;; Qualidade de vida
+;; =============================================================================
+
+;; Dirvish: Gerenciador de arquivos moderno e poderoso
+;; Substitui o Dired padrão com interface melhorada, ícones e preview
+;; Funcionalidades: árvore de diretórios, preview de arquivos, ícones, git info
+;; GitHub: https://github.com/alexluigit/dirvish
+(use-package dirvish
+  :ensure t
+  
+  ;; Substitui o Dired padrão automaticamente
+  :init
+  (dirvish-override-dired-mode)
+  
+  ;; Configurações de aparência e comportamento
+  :custom
+  ;; Atributos mostrados: ícones, tamanho, estado da árvore, mensagem git
+  (dirvish-attributes '(all-the-icons file-size subtree-state git-msg))
+  
+  ;; Header: caminho à esquerda, espaço livre à direita
+  (dirvish-header-line-format '(:left (path) :right (free-space)))
+  
+  ;; Mode-line: ordenação e hora à esquerda, ações à direita
+  (dirvish-mode-line-format '(:left (sort file-time) :right (omit yank index)))
+  
+  ;; Preview automático para: imagens, vídeos, gifs, arquivos compactados, PDFs
+  (dirvish-preview-dispatchers '(image video gif archive pdf))
+  
+  ;; Configurações adicionais de preview
+  (dirvish-use-header-line t)        ;; Mostra header com informações
+  (dirvish-use-mode-line t)          ;; Mostra mode-line customizada
+  (delete-by-moving-to-trash t)      ;; Move para lixeira ao invés de deletar
+  
+  ;; Desabilita número de linhas no Dirvish (não faz sentido em gerenciador de arquivos)
+  :hook
+  (dirvish-mode . (lambda () (display-line-numbers-mode -1)))
+  
+  ;; Atalhos de teclado
+  :bind
+  (("C-x d" . dirvish)               ;; Substitui dired padrão (C-x d)
+   :map dirvish-mode-map
+   ("TAB"   . dirvish-subtree-toggle) ;; Expande/colapsa subdiretórios
+   ("f"     . dirvish-file-info-menu) ;; Menu com informações detalhadas do arquivo
+   ("y"     . dirvish-yank-menu)      ;; Menu de cópia (nome, caminho, etc)
+   ("N"     . dirvish-narrow)         ;; Filtra arquivos (busca incremental)
+   ("^"     . dirvish-history-last)   ;; Volta para diretório anterior
+   ("h"     . dirvish-history-jump)   ;; Histórico de diretórios visitados
+   ("s"     . dirvish-quicksort)      ;; Menu rápido de ordenação
+   ("v"     . dirvish-vc-menu)        ;; Menu de controle de versão (git)
+   ("?"     . dirvish-dispatch)       ;; Menu principal com todos comandos
+   ("q"     . dirvish-quit)))         ;; Fecha o dirvish
+
+
+;; =============================================================================
 ;; Desenvolvimento 
 ;; =============================================================================
 
