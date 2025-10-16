@@ -67,6 +67,15 @@ RUN for i in 1 2 3; do \
 # Instala a norminette da 42
 RUN python3 -m pip install -U norminette --break-system-packages
 
+# Descomenta GCC_COLORS e aliases no bashrc (incluindo os com indentação)
+RUN sed -i -E 's/^(\s*)#(export GCC_COLORS=|alias (ll|la|l|dir|vdir|grep|fgrep|egrep)=)/\1\2/g' ~/.bashrc
+
+# Ajusta o PATH e configurações do shell
+RUN echo '' >> ~/.bashrc && \
+    echo '# PATH Configuration' >> ~/.bashrc && \
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && \
+    echo '' >> ~/.bashrc
+
 # Cria o diretório de configuração do Emacs
 RUN mkdir -p ~/.config/emacs
 
