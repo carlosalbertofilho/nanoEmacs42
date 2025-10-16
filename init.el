@@ -122,8 +122,8 @@
   ;; Configuração do tema
   (require 'nano-base-colors)
   (require 'nano-faces)
+  (require 'nano-theme-light)
   (require 'nano-theme-dark)
-  (nano-theme-set-dark)
   
   ;; Linhas de cabeçalho e modo
   (require 'nano-modeline)
@@ -177,13 +177,17 @@
 ;; BUFFER INICIAL
 ;; =============================================================================
 
-;; Define o buffer *scratch* como buffer padrão após a inicialização
+;; Muda para o buffer *scratch* e depois exibe o splash do Nano Emacs
 (add-hook 'emacs-startup-hook
           (lambda ()
-            ;; Aguarda um pouco para garantir que tudo foi carregado
+            ;; Primeiro muda para o *scratch*
             (run-with-idle-timer 0.1 nil
                                  (lambda ()
-                                   ;; Muda para o buffer *scratch*
-                                   (switch-to-buffer "*scratch*")))))
+                                   (switch-to-buffer "*scratch*")
+                                   ;; Depois exibe o splash do Nano Emacs
+                                   (run-with-idle-timer 0.2 nil
+                                                        (lambda ()
+                                                          (when (fboundp 'nano-splash)
+                                                            (nano-splash))))))))
 
 ;;; init.el ends here
