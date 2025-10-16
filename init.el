@@ -1,129 +1,189 @@
-;;; early-init.el --- Description -*- lexical-binding: t; -*-
+;;; init.el --- Configuração principal do Nano Emacs -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2025 Carlos Filho
 ;;
+;; Este arquivo contém a configuração principal do Emacs usando Elpaca
+;; como gerenciador de pacotes e Nano Emacs para a interface.
 
-;; --- Straight.el ------------------------------------------------------------
-;; Instala o straight.el como gerenciador de pacotes
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+;;; Code:
 
-;; --- Nano Emacs-- -----------------------------------------------------------
-;; Instala e configura o Nano Emacs
-(straight-use-package '(nano :type git :host github :repo "rougier/nano-emacs"))
+;; =============================================================================
+;; BOOTSTRAP DO ELPACA (Gerenciador de Pacotes)
+;; =============================================================================
 
-;; Default layout (optional)
-(require 'nano-layout)
+;; Desabilita package.el (já configurado no early-init.el, mas reforçamos aqui)
+(setq package-enable-at-startup nil)
 
-;; Theme
-(require 'nano-base-colors)
-(require 'nano-faces)
-(require 'nano-theme-dark)
+;; Define versão do instalador e diretórios do Elpaca
+(defvar elpaca-installer-version 0.11)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1 :inherit ignore
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
 
-;; Dark Theme
-(nano-theme-set-dark)
-;;(call-interactively 'nano-refresh-theme)
+;; Cria diretórios se não existirem
+(unless (file-exists-p elpaca-directory)
+  (make-directory elpaca-directory t))
 
-;; Nano header & mode lines (optional)
-(require 'nano-modeline)
+;; Lógica de bootstrap: verifica, clona, compila e carrega o Elpaca
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (<= emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 
-;; Nano key bindings modification (optional)
-(require 'nano-bindings)
+;; Instala o use-package via Elpaca
+(elpaca elpaca-use-package
+  (elpaca-use-package-mode)
+  (setq elpaca-use-package-by-default t))
 
-;; Compact layout (need to be loaded after nano-modeline)
-(when (member "-compact" command-line-args)
-  (require 'nano-compact))
+;; Bloqueia até que o use-package esteja pronto
+(elpaca-wait)
 
-;; Welcome message (optional)
-(let ((inhibit-message t))
-  (message "Welcome to GNU Emacs / N Λ N O edition")
-  (message (format "Initialization time: %s" (emacs-init-time))))
+;; =============================================================================
+;; DESATIVAÇÃO DE ELEMENTOS DA INTERFACE (Antes do Nano Emacs)
+;; =============================================================================
 
-;; Splash (optional)
-(unless (member "-no-splash" command-line-args)
-  (require 'nano-splash))
+;; Desativa elementos da interface (reforço do early-init.el)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
 
-;; Help (optional)
-(unless (member "-no-help" command-line-args)
-  (require 'nano-help))
+;; =============================================================================
+;; TIPOGRAFIA E APARÊNCIA (Configurar ANTES do Nano Emacs)
+;; =============================================================================
 
-
-;; --- Typography stack -------------------------------------------------------
+;; Fonte monoespaçada e tamanho
 (setq nano-font-family-monospaced "Roboto Mono")
 (setq nano-font-size 11)
 
-;; Line spacing, can be 0 for code and 1 or 2 for text
+;; Espaçamento entre linhas (0 para código, 1 ou 2 para texto)
 (setq-default line-spacing 0)
 
-;; Underline line at descent position, not baseline position
+;; Sublinhado na posição de descida, não na linha de base
 (setq x-underline-at-descent-line t)
 
-;; No ugly button for checkboxes
+;; Sem botões feios para checkboxes
 (setq widget-image-enable nil)
 
-;; Line cursor and blink
-(set-default 'cursor-type  '(bar . 1))
+;; Cursor em forma de linha e piscando
+(set-default 'cursor-type '(bar . 1))
 (blink-cursor-mode 1)
 
-;; No sound
+;; Sem sons
 (setq visible-bell t)
 (setq ring-bell-function 'ignore)
 
-;; No Tooltips
+;; Sem tooltips
 (tooltip-mode 0)
 
-;; Paren mode is part of the theme
+;; Modo de parênteses (parte do tema)
 (show-paren-mode t)
 
-(require 'nano)
+;; =============================================================================
+;; NANO EMACS - Interface Minimalista
+;; =============================================================================
 
-;; --- bind key --------------------------------------------------------------------
-;; define atalhos de acordo com a versão do emacs
+;; Instala e configura o Nano Emacs
+(use-package nano
+  :ensure (:host github :repo "rougier/nano-emacs")
+  :config
+  ;; Layout padrão
+  (require 'nano-layout)
+  
+  ;; Configuração do tema
+  (require 'nano-base-colors)
+  (require 'nano-faces)
+  (require 'nano-theme-dark)
+  (nano-theme-set-dark)
+  
+  ;; Linhas de cabeçalho e modo
+  (require 'nano-modeline)
+  
+  ;; Modificação de keybindings do Nano
+  (require 'nano-bindings)
+  
+  ;; Layout compacto (se solicitado via linha de comando)
+  (when (member "-compact" command-line-args)
+    (require 'nano-compact))
+  
+  ;; Mensagem de boas-vindas (SEM inhibit-message para permitir splash)
+  (message "Bem-vindo ao GNU Emacs / Edição N Λ N O")
+  (message (format "Tempo de inicialização: %s" (emacs-init-time)))
+  
+  ;; Splash screen (se não desabilitado via linha de comando)
+  (unless (member "-no-splash" command-line-args)
+    (require 'nano-splash))
+  
+  ;; Ajuda (se não desabilitada via linha de comando)
+  (unless (member "-no-help" command-line-args)
+    (require 'nano-help))
+  
+  ;; Ativa o Nano Emacs
+  (require 'nano)
+  
+  ;; Garante que os elementos da interface permaneçam desativados
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1))
+
+;; =============================================================================
+;; UTILITÁRIOS E FUNÇÕES AUXILIARES
+;; =============================================================================
+
+;; Função para definir atalhos de acordo com a versão do Emacs
 (defun bind-key (key command)
-  "Define KEY to invoke COMMAND, using the best available API for this Emacs version."
+  "Define KEY para invocar COMMAND, usando a melhor API disponível para esta versão do Emacs."
   (if (fboundp 'keymap-global-set)
       (keymap-global-set key command)
     (global-set-key (kbd key) command)))
 
-;; --- Ivy --------------------------------------------------------------------
-;; Mecanismo de complete no Emacs
-(straight-use-package '(ivy :type git :host github :repo "abo-abo/swiper"))
-(ivy-mode 1)
-(setq ivy-use-virtual-buffers t)
-(setq enable-recursive-minibuffers t)
-(setq search-default-mode #'char-fold-to-regexp)
-(bind-key "C-s" #'swiper-isearch)
-(bind-key "C-c C-r" #'ivy-resume)
-(bind-key "<f6>" #'ivy-resume)
-;;(bind-key "M-x" #'counsel-M-x)
-(bind-key "C-x C-f" #'counsel-find-file)
-(bind-key "<f1> f" #'counsel-describe-function)
-(bind-key "<f1> v" #'counsel-describe-variable)
-(bind-key "<f1> o" #'counsel-describe-symbol)
-(bind-key "<f1> l" #'counsel-find-library)
-(bind-key "<f2> i" #'counsel-info-lookup-symbol)
-(bind-key "<f2> u" #'counsel-unicode-char)
-(bind-key "C-c g" #'counsel-git)
-(bind-key "C-c j" #'counsel-git-grep)
-(bind-key "C-c k" #'counsel-ag)
-(bind-key "C-x l" #'counsel-locate)
-(bind-key "C-S-o" #'counsel-rhythmbox)
-(define-key minibuffer-local-map (kbd "C-r") #'counsel-minibuffer-history)
+;; =============================================================================
+;; ATIVAÇÃO DE MODOS ADICIONAIS
+;; =============================================================================
 
-;; --- Activate / Deactivate modes --------------------------------------------
-(tool-bar-mode -1) (menu-bar-mode -1) (blink-cursor-mode -1)
+;; Ativa destaque da linha atual
 (global-hl-line-mode 1)
-(scroll-bar-mode -1)
+
+;; =============================================================================
+;; BUFFER INICIAL
+;; =============================================================================
+
+;; Define o buffer *scratch* como buffer padrão após a inicialização
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            ;; Aguarda um pouco para garantir que tudo foi carregado
+            (run-with-idle-timer 0.1 nil
+                                 (lambda ()
+                                   ;; Muda para o buffer *scratch*
+                                   (switch-to-buffer "*scratch*")))))
+
+;;; init.el ends here

@@ -23,6 +23,15 @@ emacs
 
 **Ou use com Docker** (veja seção [🐳 Uso com Docker](#-uso-com-docker))
 
+## 📚 Documentação Completa
+
+Este projeto inclui documentação detalhada em português:
+
+| Arquivo | Descrição |
+|---------|-----------|
+| **[README.md](./README.md)** | 📖 Visão geral e início rápido (você está aqui) |
+| **[ELPACA.md](./ELPACA.md)** | 📦 Guia completo do Elpaca (gerenciador de pacotes) |
+
 ## 🐳 Uso com Docker
 
 ### Construindo a Imagem

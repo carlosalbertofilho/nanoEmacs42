@@ -57,4 +57,14 @@
 ;; Reduzir ruído visual durante inicialização
 (setq inhibit-compacting-font-caches t)  ; Não compactar cache de fontes
 
+;; --- Elpaca Specific --------------------------------------------------------
+;; Preparar diretórios para Elpaca antes da inicialização
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+
+;; Criar diretórios se não existirem
+(unless (file-exists-p elpaca-directory)
+  (make-directory elpaca-directory t))
+
 ;;; early-init.el ends here
