@@ -443,6 +443,15 @@
   :bind (("C-x g" . magit-status)       ;; Abre o status do Git (tela principal)
          ("C-x C-g" . magit-status)))   ;; Atalho alternativo
 
+;; Forge: Integração com GitHub, GitLab e outros forges no Magit
+;; Permite gerenciar issues, pull requests e notificações diretamente do Emacs
+;; Funcionalidades: criar/fechar PRs, revisar código, comentar issues, etc.
+;; Requer configuração de token de acesso (ver README do Forge)
+;; GitHub: https://github.com/magit/forge
+(use-package forge
+  :after magit  ;; Forge estende o Magit
+  :ensure t)
+
 ;; =============================================================================
 ;; HEADER 42 - Carrega o módulo do header da 42
 ;; =============================================================================
