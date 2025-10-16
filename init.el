@@ -193,16 +193,16 @@
   :init
   (vertico-mode))
 
-
-
-;; Nerd Icons Completion: Adiciona ícones à completação
-;; Exibe ícones bonitos ao lado dos candidatos de completação
-;; GitHub: https://github.com/rainstormstudio/nerd-icons-completion
-(use-package nerd-icons-completion
-  :after marginalia
-  :config
-  (nerd-icons-completion-mode)
-  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+;; Orderless: Estilo de completação flexível e poderoso
+;; Permite buscar com múltiplas palavras em qualquer ordem
+;; Ex: "buf em li" encontra "buffer-emacs-lisp" e "emacs-lisp-buffer"
+;; GitHub: https://github.com/oantolin/orderless
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles partial-completion))))
+  (completion-pcm-leading-wildcard t)) ;; Emacs 31: partial-completion behaves like substring
 
 ;; Marginalia: Anotações ricas para minibuffer
 ;; Adiciona informações úteis ao lado dos candidatos de completação
@@ -212,6 +212,15 @@
   :ensure t
   :init
   (marginalia-mode))
+
+;; Nerd Icons Completion: Adiciona ícones à completação
+;; Exibe ícones bonitos ao lado dos candidatos de completação
+;; GitHub: https://github.com/rainstormstudio/nerd-icons-completion
+(use-package nerd-icons-completion
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 ;; Corfu: Completação automática in-buffer (popup)
 ;; Sistema moderno de auto-completação enquanto você digita
@@ -412,6 +421,27 @@
                                    ;;                         < p = só project
                                    ;; Permite filtrar resultados por categoria
   ) ;; Fecha o use-package consult
+
+;; =============================================================================
+;; Desenvolvimento 
+;; =============================================================================
+
+;; Transient: Framework para interfaces de comando com menus pop-up
+;; Fornece menus interativos com dicas de teclas e argumentos
+;; Usado pelo Magit e outros pacotes para criar interfaces ricas
+;; GitHub: https://github.com/magit/transient
+(use-package transient
+  :ensure t)
+
+;; Magit: Interface Git completa e poderosa para Emacs
+;; A melhor interface Git disponível, melhor que qualquer GUI
+;; Permite staging parcial, rebase interativo, histórico visual, etc.
+;; GitHub: https://github.com/magit/magit
+(use-package magit
+  :ensure t
+  :after transient  ;; Magit depende do Transient
+  :bind (("C-x g" . magit-status)       ;; Abre o status do Git (tela principal)
+         ("C-x C-g" . magit-status)))   ;; Atalho alternativo
 
 ;; =============================================================================
 ;; HEADER 42 - Carrega o módulo do header da 42
