@@ -156,16 +156,6 @@
   (scroll-bar-mode -1))
 
 ;; =============================================================================
-;; HEADER 42 - Carrega o módulo do header da 42
-;; =============================================================================
-
-;; Carrega o arquivo header42.el
-(load-file (expand-file-name "header42.el" user-emacs-directory))
-
-;; Habilita o header 42 com atualização automática
-(header-42-enable)
-
-;; =============================================================================
 ;; UTILITÁRIOS E FUNÇÕES AUXILIARES
 ;; =============================================================================
 
@@ -175,6 +165,36 @@
   (if (fboundp 'keymap-global-set)
       (keymap-global-set key command)
     (global-set-key (kbd key) command)))
+
+;; =============================================================================
+;; SISTEMA DE ATALHOS E DESCOBERTA DE COMANDOS
+;; =============================================================================
+
+;; Which-key: Mostra atalhos disponíveis em tempo real
+;; Quando você pressiona um prefixo (como C-x), mostra os comandos disponíveis
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode)
+  ;; Tempo de espera antes de mostrar a ajuda (em segundos)
+  (setq which-key-idle-delay 0.8)
+  ;; Exibe a janela de ajuda na parte inferior
+  (which-key-setup-side-window-bottom))
+
+;; General: Framework avançado para definir keybindings
+;; Permite criar esquemas de atalhos organizados e hierárquicos
+(use-package general
+  :ensure t)
+
+;; =============================================================================
+;; HEADER 42 - Carrega o módulo do header da 42
+;; =============================================================================
+
+;; Carrega o arquivo header42.el
+(load-file (expand-file-name "header42.el" user-emacs-directory))
+
+;; Habilita o header 42 com atualização automática
+(header-42-enable)
 
 ;; =============================================================================
 ;; ATIVAÇÃO DE MODOS ADICIONAIS

@@ -218,7 +218,7 @@
   ;; Hook para atualizar automaticamente ao salvar
   (add-hook 'before-save-hook 'header-42-update)
   ;; Atalho F1 para inserir/atualizar header
-  (global-set-key (kbd "<f1>") 'stdheader)
+  (global-set-key (kbd "<f5>") 'stdheader)
   (message "Header 42 habilitado! Use F1 para inserir/atualizar."))
 
 ;;;###autoload
@@ -226,7 +226,7 @@
   "Desabilita o header 42."
   (interactive)
   (remove-hook 'before-save-hook 'header-42-update)
-  (global-set-key (kbd "<f1>") nil)
+  (global-set-key (kbd "<f5>") nil)
   (message "Header 42 desabilitado."))
 
 (provide 'header42)
