@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: malloc with error check (42 style)
+# key: malloc
+# --
+${1:ptr} = malloc(sizeof(${2:type}) * ${3:size});
+if (!${1:ptr})
+{
+	return (${4:NULL});
+}

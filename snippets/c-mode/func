@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: function prototype (42 style)
+# key: func
+# --
+${1:int}	${2:function_name}(${3:int param})
+{
+	$0
+	return (${4:0});
+}

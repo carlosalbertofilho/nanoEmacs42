@@ -1,0 +1,86 @@
+# Makefile template para projetos 42 School
+# Use: cp ~/emacs.d/templates/Makefile.42 ./Makefile
+
+# Nome do executável
+NAME = programa
+
+# Arquivos fonte (.c)
+SRCS = main.c
+
+# Arquivos objeto (.o)
+OBJS = $(SRCS:.c=.o)
+
+# Compilador e flags
+CC = cc
+CFLAGS = -Wall -Wextra -Werror -std=c99
+
+# Cores para output
+GREEN = \033[0;32m
+YELLOW = \033[0;33m
+RED = \033[0;31m
+NC = \033[0m # No Color
+
+# Regra principal
+all: $(NAME)
+
+# Compilação do executável
+$(NAME): $(OBJS)
+	@echo "$(GREEN)[LINKING]$(NC) $(NAME)"
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
+	@echo "$(GREEN)[SUCCESS]$(NC) $(NAME) compiled successfully!"
+
+# Compilação dos objetos
+%.o: %.c
+	@echo "$(YELLOW)[COMPILING]$(NC) $<"
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+# Limpeza dos objetos
+clean:
+	@echo "$(RED)[CLEANING]$(NC) Object files"
+	@rm -f $(OBJS)
+
+# Limpeza completa (objetos + executável)
+fclean: clean
+	@echo "$(RED)[CLEANING]$(NC) $(NAME)"
+	@rm -f $(NAME)
+
+# Recompilação completa
+re: fclean all
+
+# Debug version with -g and -fsanitize=address
+debug: CFLAGS += -g -fsanitize=address
+debug: fclean $(NAME)
+	@echo "$(YELLOW)[DEBUG]$(NC) $(NAME) compiled with debug flags"
+
+# Norminette check
+norm:
+	@echo "$(YELLOW)[NORMINETTE]$(NC) Checking norm..."
+	@norminette $(SRCS) *.h 2>/dev/null || echo "$(RED)[ERROR]$(NC) Norminette not found or errors detected"
+
+# Valgrind check (requer valgrind instalado)
+valgrind: $(NAME)
+	@echo "$(YELLOW)[VALGRIND]$(NC) Checking memory leaks..."
+	@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME)
+
+# Execução
+run: $(NAME)
+	@echo "$(GREEN)[RUNNING]$(NC) $(NAME)"
+	@./$(NAME)
+
+# Help
+help:
+	@echo "$(GREEN)Makefile for 42 School projects$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Available targets:$(NC)"
+	@echo "  all      - Compile the project"
+	@echo "  clean    - Remove object files"
+	@echo "  fclean   - Remove object files and executable"
+	@echo "  re       - Recompile everything"
+	@echo "  debug    - Compile with debug flags"
+	@echo "  norm     - Check norminette"
+	@echo "  valgrind - Check memory leaks"
+	@echo "  run      - Compile and run"
+	@echo "  help     - Show this help"
+
+# Phony targets (não são arquivos)
+.PHONY: all clean fclean re debug norm valgrind run help

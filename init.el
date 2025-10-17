@@ -639,6 +639,201 @@
   :ensure t)
 
 ;; =============================================================================
+;; DESENVOLVIMENTO EM C - Ambiente Completo para 42 School
+;; =============================================================================
+
+;; Flycheck: Verificação de sintaxe em tempo real
+;; Mostra erros e warnings enquanto você digita
+;; Suporta gcc, clang, norminette e outros linters
+;; Essencial para desenvolvimento em C na 42
+;; GitHub: https://github.com/flycheck/flycheck
+(use-package flycheck
+  :ensure t
+  :init
+  ;; Ativa Flycheck globalmente em modos de programação
+  (global-flycheck-mode)
+  :config
+  ;; Configura checkers específicos para C
+  (setq flycheck-gcc-language-standard "c99")     ;; Padrão C99 (42 School)
+  (setq flycheck-clang-language-standard "c99")   ;; Padrão C99 para clang
+  
+  ;; Flags específicas da 42 School
+  (setq flycheck-gcc-args '("-Wall" "-Wextra" "-Werror"))
+  (setq flycheck-clang-args '("-Wall" "-Wextra" "-Werror"))
+  
+  ;; Delay antes da verificação (não deixar muito lento)
+  (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled))
+  (setq flycheck-idle-change-delay 2)
+  
+  ;; Atalhos úteis
+  :bind
+  (("C-c f n" . flycheck-next-error)      ;; Próximo erro
+   ("C-c f p" . flycheck-previous-error)  ;; Erro anterior
+   ("C-c f l" . flycheck-list-errors)     ;; Lista todos erros
+   ("C-c f c" . flycheck-buffer)))        ;; Verificar buffer atual
+
+;; Projectile: Gerenciamento inteligente de projetos
+;; Facilita navegação, compilação e busca em projetos C
+;; Detecta automaticamente projetos por Makefile, .git, etc.
+;; GitHub: https://github.com/bbatsov/projectile
+(use-package projectile
+  :ensure t
+  :init
+  ;; Ativa Projectile globalmente
+  (projectile-mode +1)
+  :config
+  ;; Método de indexação (native é mais rápido)
+  (setq projectile-indexing-method 'native)
+  (setq projectile-completion-system 'default)
+  
+  ;; Cache para projetos grandes
+  (setq projectile-enable-caching t)
+  
+  ;; Comandos de compilação específicos para C
+  (setq projectile-project-compilation-cmd "make")
+  
+  ;; Atalhos principais do Projectile
+  :bind
+  (("C-c p p" . projectile-switch-project)     ;; Trocar projeto
+   ("C-c p f" . projectile-find-file)          ;; Buscar arquivo no projeto
+   ("C-c p c" . projectile-compile-project)    ;; Compilar projeto
+   ("C-c p g" . projectile-grep)               ;; Buscar texto no projeto
+   ("C-c p r" . projectile-replace)            ;; Substituir em todo projeto
+   ("C-c p k" . projectile-kill-buffers)       ;; Fechar buffers do projeto
+   ("C-c p d" . projectile-find-dir)           ;; Buscar diretório
+   ("C-c p b" . projectile-switch-to-buffer)   ;; Trocar buffer do projeto
+   ("C-c p s s" . projectile-ag)               ;; Busca com ag/rg
+   ("C-c p !" . projectile-run-shell-command-in-root))) ;; Comando no root
+
+;; Rainbow Delimiters: Colore parênteses/chaves por nível
+;; Facilita visualização de estruturas aninhadas em C
+;; Cada nível de aninhamento tem uma cor diferente
+;; GitHub: https://github.com/Fanael/rainbow-delimiters
+(use-package rainbow-delimiters
+  :ensure t
+  :hook
+  ;; Ativa em modos de programação (incluindo C)
+  ((prog-mode . rainbow-delimiters-mode)
+   (c-mode . rainbow-delimiters-mode)))
+
+;; Company: Sistema de autocompletação alternativo/complementar ao Corfu
+;; Usado principalmente para backends específicos como headers C
+;; GitHub: https://github.com/company-mode/company-mode
+(use-package company
+  :ensure t
+  :config
+  ;; Configurações básicas (não ativar globalmente, usar apenas para C)
+  (setq company-idle-delay 0.3)
+  (setq company-minimum-prefix-length 2)
+  (setq company-selection-wrap-around t))
+
+;; Company-C-Headers: Autocompletar headers do sistema
+;; Completa #include <stdio.h>, <stdlib.h>, etc.
+;; Funciona como backend especializado para headers C
+;; GitHub: https://github.com/randomphrase/company-c-headers
+(use-package company-c-headers
+  :ensure t
+  :after company
+  :config
+  ;; Adiciona headers do sistema aos backends do company
+  (add-to-list 'company-backends 'company-c-headers)
+  
+  ;; Caminhos padrão dos headers (macOS com Xcode)
+  (add-to-list 'company-c-headers-path-system "/usr/include/")
+  (add-to-list 'company-c-headers-path-system "/usr/local/include/")
+  
+  ;; Se tiver Xcode Command Line Tools
+  (when (file-directory-p "/Library/Developer/CommandLineTools/usr/include/")
+    (add-to-list 'company-c-headers-path-system 
+                 "/Library/Developer/CommandLineTools/usr/include/"))
+  
+  ;; Ativa company apenas em modo C para headers
+  :hook
+  (c-mode . (lambda ()
+              (set (make-local-variable 'company-backends)
+                   '(company-c-headers company-dabbrev-code)))))
+
+;; Highlight Indentation: Ajuda visual para indentação
+;; Mostra linhas verticais para cada nível de indentação
+;; Importante em C para ver blocos de código
+;; GitHub: https://github.com/antonj/Highlight-Indentation-for-Emacs
+(use-package highlight-indentation
+  :ensure t
+  :hook
+  ;; Ativa em modo C e outros modos de programação
+  ((c-mode . highlight-indentation-mode)
+   (c++-mode . highlight-indentation-mode))
+  :config
+  ;; Customiza a cor das linhas (mais sutil)
+  (set-face-background 'highlight-indentation-face "#404040")
+  (set-face-background 'highlight-indentation-current-column-face "#606060"))
+
+;; YASnippet: Sistema de templates/snippets de código
+;; Templates prontos para estruturas C comuns
+;; Ex: "for" + TAB = loop for completo
+;; GitHub: https://github.com/joaotavora/yasnippet
+(use-package yasnippet
+  :ensure t
+  :config
+  ;; Ativa YASnippet globalmente
+  (yas-global-mode 1)
+  
+  ;; Diretório personalizado para snippets
+  (setq yas-snippet-dirs
+        (append yas-snippet-dirs
+                (list (expand-file-name "snippets" user-emacs-directory))))
+  
+  ;; Atalhos úteis
+  :bind
+  (("C-c y i" . yas-insert-snippet)      ;; Inserir snippet
+   ("C-c y n" . yas-new-snippet)         ;; Criar novo snippet
+   ("C-c y v" . yas-visit-snippet-file))) ;; Editar snippet
+
+;; Yasnippet Snippets: Coleção de snippets prontos
+;; Inclui snippets para C, C++, Python, etc.
+;; GitHub: https://github.com/AndreaCrotti/yasnippet-snippets
+(use-package yasnippet-snippets
+  :ensure t
+  :after yasnippet)
+
+;; Configurações específicas do modo C
+(use-package cc-mode
+  :ensure nil  ;; Built-in do Emacs
+  :config
+  ;; Estilo de indentação (padrão 42 School)
+  (setq c-default-style "linux"           ;; Estilo base Linux
+        c-basic-offset 4)                 ;; 4 espaços por tab (padrão 42)
+  
+  ;; Configurações específicas para C
+  (setq-default c-indent-tabs-mode nil)   ;; Usa espaços ao invés de tabs
+  
+  ;; Auto-indentação ao pressionar Enter
+  (define-key c-mode-map (kbd "RET") 'c-indent-new-comment-line)
+  
+  ;; Atalhos específicos para C
+  :bind
+  (:map c-mode-map
+   ("C-c C-c" . compile)                  ;; Compilar rapidamente
+   ("C-c C-r" . recompile)                ;; Recompilar
+   ("C-c C-g" . gdb)                      ;; Abrir GDB
+   ("C-c h"   . header-42-insert)))       ;; Inserir header 42
+
+;; GDB-MI: Interface melhorada para GDB
+;; Interface gráfica para debugging com múltiplas janelas
+;; Mostra código, variáveis, stack, etc. simultaneamente
+(use-package gdb-mi
+  :ensure nil  ;; Built-in do Emacs
+  :config
+  ;; Ativa interface com múltiplas janelas
+  (setq gdb-many-windows t)
+  
+  ;; Mostra o código principal por padrão
+  (setq gdb-show-main t)
+  
+  ;; Restaura layout das janelas ao sair
+  (setq gdb-restore-window-configuration-after-quit t))
+
+;; =============================================================================
 ;; HEADER 42 - Carrega o módulo do header da 42
 ;; =============================================================================
 
