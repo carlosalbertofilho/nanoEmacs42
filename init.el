@@ -716,6 +716,86 @@
   ((prog-mode . rainbow-delimiters-mode)
    (c-mode . rainbow-delimiters-mode)))
 
+;; =============================================================================
+;; AUTO-FECHAMENTO DE DELIMITADORES
+;; =============================================================================
+
+;; Electric Pair Mode: Auto-fechamento básico (built-in do Emacs)
+;; Fecha automaticamente parênteses, colchetes, chaves, aspas, etc.
+;; Built-in, leve e confiável para uso básico
+(use-package electric
+  :ensure nil  ;; Built-in do Emacs  
+  :init
+  ;; Ativa electric-pair-mode globalmente
+  (electric-pair-mode 1)
+  :config
+  ;; Configurações específicas
+  (setq electric-pair-preserve-balance t)     ;; Mantém equilíbrio dos pares
+  (setq electric-pair-delete-adjacent-pairs t) ;; Deleta pares adjacentes
+  (setq electric-pair-open-newline-between-pairs t) ;; Nova linha entre pares
+  
+  ;; Adiciona pares personalizados para diferentes modos
+  (add-hook 'c-mode-hook
+            (lambda ()
+              ;; Em C, adiciona comportamento especial para < > em includes
+              (setq-local electric-pair-pairs
+                          (append electric-pair-pairs '((?< . ?>)))))))
+
+;; Smartparens: Sistema avançado de manipulação de delimitadores
+;; Funcionalidades avançadas: navegação, edição estrutural, wrapping
+;; Complementa o electric-pair-mode com recursos extras
+;; GitHub: https://github.com/Fuco1/smartparens
+(use-package smartparens
+  :ensure t
+  :init
+  ;; Ativa smartparens globalmente
+  (smartparens-global-mode 1)
+  :config
+  ;; Carrega configurações padrão para diferentes linguagens
+  (require 'smartparens-config)
+  
+  ;; Configurações específicas
+  (setq sp-highlight-pair-overlay nil)        ;; Não destacar pares (deixa pro rainbow-delimiters)
+  (setq sp-highlight-wrap-overlay nil)        ;; Não destacar wrapping
+  (setq sp-highlight-wrap-tag-overlay nil)    ;; Não destacar wrap de tags
+  
+  ;; Configurações específicas para C
+  (sp-with-modes '(c-mode c++-mode)
+    ;; Comportamento especial para * em C (ponteiros)
+    (sp-local-pair "*" nil :actions nil)
+    ;; Auto-indent em blocos de código
+    (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+    ;; Comportamento para includes
+    (sp-local-pair "<" ">" :when '(sp-point-after-word-p)))
+  
+  ;; Atalhos para navegação e manipulação estrutural
+  :bind
+  (;; Navegação por expressões
+   ("C-M-f" . sp-forward-sexp)               ;; Avançar expressão
+   ("C-M-b" . sp-backward-sexp)              ;; Retroceder expressão
+   ("C-M-n" . sp-next-sexp)                  ;; Próxima expressão
+   ("C-M-p" . sp-previous-sexp)              ;; Expressão anterior
+   
+   ;; Manipulação de expressões
+   ("C-M-k" . sp-kill-sexp)                  ;; Matar expressão
+   ("C-M-w" . sp-copy-sexp)                  ;; Copiar expressão
+   ("C-M-t" . sp-transpose-sexp)             ;; Transpor expressões
+   
+   ;; Wrapping (envolver com delimitadores)
+   ("C-c w p" . sp-wrap-round)               ;; Envolver com ()
+   ("C-c w b" . sp-wrap-square)              ;; Envolver com []
+   ("C-c w c" . sp-wrap-curly)               ;; Envolver com {}
+   ("C-c w s" . sp-wrap-with-string)         ;; Envolver com ""
+   
+   ;; Unwrapping (remover delimitadores)
+   ("C-c u" . sp-unwrap-sexp)                ;; Remover delimitadores
+   
+   ;; Slurp/Barf (expandir/contrair expressões)
+   ("C-M-<right>" . sp-forward-slurp-sexp)   ;; Expandir à direita
+   ("C-M-<left>" . sp-forward-barf-sexp)     ;; Contrair à direita
+   ("C-M-S-<left>" . sp-backward-slurp-sexp) ;; Expandir à esquerda  
+   ("C-M-S-<right>" . sp-backward-barf-sexp))) ;; Contrair à esquerda
+
 ;; Company: Sistema de autocompletação alternativo/complementar ao Corfu
 ;; Usado principalmente para backends específicos como headers C
 ;; GitHub: https://github.com/company-mode/company-mode
@@ -809,6 +889,17 @@
   
   ;; Auto-indentação ao pressionar Enter
   (define-key c-mode-map (kbd "RET") 'c-indent-new-comment-line)
+  
+  ;; Configurações específicas para delimitadores em C
+  (add-hook 'c-mode-hook
+            (lambda ()
+              ;; Auto-indentação após chaves
+              (electric-indent-local-mode 1)
+              ;; Comportamento especial para ponto e vírgula
+              (setq-local electric-layout-rules
+                          '((?\; . after)))
+              ;; Facilita navegação com smartparens
+              (show-paren-mode 1)))
   
   ;; Atalhos específicos para C
   :bind
