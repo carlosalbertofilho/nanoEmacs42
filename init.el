@@ -423,7 +423,7 @@
   ) ;; Fecha o use-package consult
 
 ;; =============================================================================
-;; GERENCIAMENTO DE ARQUIVOS E SHELL
+;; GERENCIAMENTO DE ARQUIVOS
 ;; =============================================================================
 
 ;; Dired-X: Extensões avançadas para o Dired (gerenciador de arquivos padrão)
