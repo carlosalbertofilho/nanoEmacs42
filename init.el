@@ -571,6 +571,7 @@
 ;; 
 ;; GitHub: https://www.gnu.org/software/tramp/
 (use-package tramp
+  :ensure nil  ;; Não instalar via Elpaca (é built-in)
   :config
   ;; Habilita Dirvish completo sobre conexões TRAMP via SSH
   ;; Melhora performance de processos assíncronos remotos
@@ -679,6 +680,7 @@
 ;; Permite misturar comandos do sistema com funções Elisp
 ;; Configuração com aliases específicos para desenvolvimento em C
 (use-package eshell
+  :ensure nil  ;; Não instalar via Elpaca (é built-in)
   :config
   ;; Diretório para aliases personalizados
   (setq eshell-aliases-file (expand-file-name "eshell-aliases" user-emacs-directory))
