@@ -423,8 +423,45 @@
   ) ;; Fecha o use-package consult
 
 ;; =============================================================================
-;; Qualidade de vida
+;; GERENCIAMENTO DE ARQUIVOS E QUALIDADE DE VIDA
 ;; =============================================================================
+
+;; Dired-X: Extensões avançadas para o Dired (gerenciador de arquivos padrão)
+;; Adiciona funcionalidades extras como omit-mode, guess-shell-command, etc.
+;; Permite ocultar arquivos desnecessários e comandos inteligentes
+(use-package dired-x
+  :ensure t
+  :config
+  ;; Configura dired-omit-mode para ocultar arquivos ocultos (dotfiles)
+  ;; Útil para limpar a visualização removendo .DS_Store, .git, etc.
+  (setq dired-omit-files
+        (concat dired-omit-files "\\|^\\..*$")))
+
+;; Diredfl: Colorização e destaque sintático para Dired
+;; Adiciona cores diferentes para tipos de arquivo, permissões e diretórios
+;; Melhora a legibilidade visual do gerenciador de arquivos
+;; GitHub: https://github.com/purcell/diredfl
+(use-package diredfl
+  :ensure t
+  :hook
+  ((dired-mode . diredfl-mode)
+   ;; Também ativa colorização no preview de diretórios do Dirvish
+   (dirvish-directory-view-mode . diredfl-mode))
+  :config
+  ;; Deixa nomes de diretórios em negrito para maior destaque
+  (set-face-attribute 'diredfl-dir-name nil :bold t))
+
+;; Nerd Icons: Fonte de ícones moderna para Emacs
+;; Fornece ícones baseados em fonte para arquivos, diretórios e modos
+;; Usado como backend de ícones pelo Dirvish e outros pacotes
+;; Requer fonte Nerd Font instalada no sistema
+;; GitHub: https://github.com/rainstormstudio/nerd-icons.el
+(use-package nerd-icons
+  :ensure t
+  :config
+  ;; Instala as fontes automaticamente se não estiverem presentes
+  (unless (find-font (font-spec :name "Symbols Nerd Font Mono"))
+    (nerd-icons-install-fonts t)))
 
 ;; Dirvish: Gerenciador de arquivos moderno e poderoso
 ;; Substitui o Dired padrão com interface melhorada, ícones e preview
@@ -437,28 +474,45 @@
   :init
   (dirvish-override-dired-mode)
   
+  ;; Carrega o módulo de ícones explicitamente
+  :config
+  (require 'dirvish-icons)
+  
   ;; Configurações de aparência e comportamento
-  :custom
   ;; Atributos mostrados: ícones, tamanho, estado da árvore, mensagem git
-  (dirvish-attributes '(all-the-icons file-size subtree-state git-msg))
+  (setq dirvish-attributes           ; The order *MATTERS* for some attributes
+        '(vc-state subtree-state nerd-icons collapse git-msg file-time file-size)
+        dirvish-side-attributes
+        '(vc-state nerd-icons collapse file-size))
+  
+  ;; Customizações específicas dos ícones Nerd Icons
+  (setq dirvish-icon-delimiter " ")         ;; Espaço após cada ícone
+  (setq dirvish-nerd-icons-offset 0.0)     ;; Ajuste vertical dos ícones (0.0 = padrão)
+  (setq dirvish-nerd-icons-height nil)     ;; Altura dos ícones (nil = padrão, try 0.8)
+  (setq dirvish-nerd-icons-palette 'nerd-icons) ;; Esquema de cores (nerd-icons = padrão)
   
   ;; Header: caminho à esquerda, espaço livre à direita
-  (dirvish-header-line-format '(:left (path) :right (free-space)))
+  (setq dirvish-header-line-format '(:left (path) :right (free-space)))
   
   ;; Mode-line: ordenação e hora à esquerda, ações à direita
-  (dirvish-mode-line-format '(:left (sort file-time) :right (omit yank index)))
+  (setq dirvish-mode-line-format '(:left (sort file-time) :right (omit yank index)))
   
   ;; Preview automático para: imagens, vídeos, gifs, arquivos compactados, PDFs
-  (dirvish-preview-dispatchers '(image video gif archive pdf))
+  (setq dirvish-preview-dispatchers '(image video gif archive pdf))
   
   ;; Configurações adicionais de preview
-  (dirvish-use-header-line t)        ;; Mostra header com informações
-  (dirvish-use-mode-line t)          ;; Mostra mode-line customizada
-  (delete-by-moving-to-trash t)      ;; Move para lixeira ao invés de deletar
+  (setq dirvish-use-header-line t)        ;; Mostra header com informações
+  (setq dirvish-use-mode-line t)          ;; Mostra mode-line customizada
+  (setq delete-by-moving-to-trash t)      ;; Move para lixeira ao invés de deletar
   
   ;; Desabilita número de linhas no Dirvish (não faz sentido em gerenciador de arquivos)
   :hook
-  (dirvish-mode . (lambda () (display-line-numbers-mode -1)))
+  ((dirvish-mode . (lambda () 
+                     (display-line-numbers-mode -1)
+                     (setq-local display-line-numbers nil)))
+   (dired-mode . (lambda () 
+                   (display-line-numbers-mode -1)
+                   (setq-local display-line-numbers nil))))
   
   ;; Atalhos de teclado
   :bind
