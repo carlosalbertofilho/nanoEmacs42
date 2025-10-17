@@ -506,6 +506,17 @@
   (setq dirvish-use-mode-line t)          ;; Mostra mode-line customizada
   (setq delete-by-moving-to-trash t)      ;; Move para lixeira ao invés de deletar
   
+  ;; Configurações específicas do dirvish-side
+  (setq dirvish-side-width 35)             ;; Largura da sidebar (35 colunas)
+  (setq dirvish-side-auto-expand t)        ;; Expande automaticamente até arquivo atual
+  (setq dirvish-side-follow-mode nil)      ;; Follow mode desabilitado por padrão
+  
+  ;; Header customizado para sidebar (mostra apenas o projeto)
+  (setq dirvish-side-header-line-format '(:left (project)))
+  
+  ;; Atributos específicos da sidebar (menos informações para economizar espaço)
+  (setq dirvish-side-attributes '(vc-state nerd-icons collapse file-size))
+  
   ;; Desabilita número de linhas no Dirvish (não faz sentido em gerenciador de arquivos)
   :hook
   ((dirvish-mode . (lambda () 
@@ -518,6 +529,11 @@
   ;; Atalhos de teclado
   :bind
   (("C-x d" . dirvish)               ;; Substitui dired padrão (C-x d)
+   ;; Atalhos globais para dirvish-side (sidebar como IDE)
+   ("<f9>"    . dirvish-side)         ;; F9: Toggle sidebar (padrão, como VS Code/IntelliJ)
+   ("C-c d s" . dirvish-side)         ;; C-c d s: Alternativa para toggle sidebar
+   ("C-c d f" . dirvish-side-follow-mode) ;; C-c d f: Auto-seleciona arquivo atual na sidebar
+   
    :map dirvish-mode-map
    ("TAB"   . dirvish-subtree-toggle) ;; Expande/colapsa subdiretórios
    ("f"     . dirvish-file-info-menu) ;; Menu com informações detalhadas do arquivo
@@ -528,7 +544,66 @@
    ("s"     . dirvish-quicksort)      ;; Menu rápido de ordenação
    ("v"     . dirvish-vc-menu)        ;; Menu de controle de versão (git)
    ("?"     . dirvish-dispatch)       ;; Menu principal com todos comandos
-   ("q"     . dirvish-quit)))         ;; Fecha o dirvish
+   ("q"     . dirvish-quit)           ;; Fecha o dirvish
+   
+   ;; Atalhos específicos do dirvish-side quando ativo
+   :map dirvish-mode-map
+   ("+" . dirvish-side-increase-width) ;; Aumenta largura da sidebar
+   ("-" . dirvish-side-decrease-width) ;; Diminui largura da sidebar
+   ))         ;; Fecha o dirvish
+
+;; TRAMP: Acesso transparente a arquivos remotos
+;; Permite editar arquivos em servidores remotos via SSH, FTP, SCP, etc.
+;; Integra perfeitamente com Dired/Dirvish para navegação remota
+;; 
+;; EXEMPLOS DE USO:
+;; - Arquivo remoto via SSH: /ssh:user@servidor.com:/home/user/arquivo.txt
+;; - Como root local: /sudo::/etc/hosts
+;; - Como outro usuário: /su:username:/home/username/arquivo.txt
+;; - Via SCP: /scp:user@servidor.com:/path/to/file
+;; - Múltiplos hops: /ssh:user@gateway|ssh:user@servidor:/arquivo
+;; 
+;; ATALHOS ÚTEIS:
+;; - C-x C-f: Abrir arquivo (use sintaxe TRAMP)
+;; - C-x d: Dirvish em diretório remoto (/ssh:user@host:/path/)
+;; - M-x tramp-cleanup-all-connections: Limpa todas conexões
+;; 
+;; GitHub: https://www.gnu.org/software/tramp/
+(use-package tramp
+  :config
+  ;; Habilita Dirvish completo sobre conexões TRAMP via SSH
+  ;; Melhora performance de processos assíncronos remotos
+  ;; Referência: https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes
+  (connection-local-set-profile-variables
+   'remote-direct-async-process
+   '((tramp-direct-async-process . t)))
+  (connection-local-set-profiles
+   '(:application tramp :protocol "ssh")
+   'remote-direct-async-process)
+  
+  ;; Otimizações de performance para conexões remotas
+  (setq tramp-verbose 0)                    ;; Reduz logs verbosos (0-10, 0=silencioso)
+  (setq tramp-chunksize 2000)               ;; Tamanho dos chunks de transferência (bytes)
+  (setq tramp-ssh-controlmaster-options nil) ;; Desabilita SSH ControlMaster (pode causar problemas)
+  
+  ;; Configurações adicionais para melhor experiência
+  (setq tramp-default-method "ssh")         ;; Método padrão (ssh, scp, ftp, etc.)
+  (setq tramp-auto-save-directory           ;; Diretório para auto-saves remotos
+        (expand-file-name "tramp-auto-saves" user-emacs-directory))
+  (setq tramp-persistency-file-name         ;; Cache de conexões persistentes
+        (expand-file-name "tramp-connection-history" user-emacs-directory))
+  
+  ;; Cache de senhas por sessão (não salva no disco por segurança)
+  (setq password-cache t)
+  (setq password-cache-expiry 3600)         ;; Expira cache de senha após 1 hora
+  
+  ;; Melhora compatibilidade com diferentes shells remotos
+  (setq tramp-shell-prompt-pattern
+        "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")
+  
+  ;; Cria diretório de auto-saves se não existir
+  (unless (file-exists-p tramp-auto-save-directory)
+    (make-directory tramp-auto-save-directory t)))
 
 
 ;; =============================================================================
