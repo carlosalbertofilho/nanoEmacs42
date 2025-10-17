@@ -476,6 +476,7 @@
   
   ;; Carrega o módulo de ícones explicitamente
   :config
+  (require 'dirvish-side)
   (require 'dirvish-icons)
   
   ;; Configurações de aparência e comportamento
