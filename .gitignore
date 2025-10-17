@@ -3,6 +3,9 @@ elpaca/
 builds/
 repos/
 straight/
+elpa/
+eshell/
+tramp-auto-saves/
 
 # Arquivos temporários e backup
 backups/

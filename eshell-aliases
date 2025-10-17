@@ -1,0 +1,98 @@
+# Eshell aliases file - Aliases para desenvolvimento C
+# Este arquivo é carregado automaticamente pelo Eshell
+# Sintaxe: alias nome_do_alias comando_completo
+
+# =============================================================================
+# COMPILAÇÃO C - Padrão 42 School
+# =============================================================================
+
+# Compilador com flags padrão
+alias cc42 cc -Wall -Wextra -Werror -std=c99 $*
+alias ccdebug cc -Wall -Wextra -Werror -std=c99 -g -fsanitize=address $*
+alias ccfast cc -O2 -Wall -Wextra -Werror -std=c99 $*
+
+# Compilação rápida (gera executável com mesmo nome do .c)
+alias comp cc -Wall -Wextra -Werror -std=c99 $1 -o ${1%.*}
+alias compdebug cc -Wall -Wextra -Werror -std=c99 -g -fsanitize=address $1 -o ${1%.*}
+
+# Compilar e executar em um comando
+alias run cc -Wall -Wextra -Werror -std=c99 $1 -o ${1%.*} && ./${1%.*}
+alias rundebug cc -Wall -Wextra -Werror -std=c99 -g -fsanitize=address $1 -o ${1%.*} && ./${1%.*}
+
+# =============================================================================
+# FERRAMENTAS DE DEBUG E ANÁLISE
+# =============================================================================
+
+# Norminette (verificador de norma 42)
+alias norm norminette $*
+alias normall norminette *.c *.h
+
+# Valgrind (detecção de memory leaks)
+alias vg valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $*
+alias vrun valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$*
+
+# GDB (GNU Debugger)
+alias gdbtui gdb -tui $*
+
+# =============================================================================
+# LIMPEZA E MANUTENÇÃO
+# =============================================================================
+
+# Limpeza de arquivos temporários
+alias clean rm -f *.o *.out a.out core
+alias cleanall rm -f *.o *.out a.out core *~ .*~ .DS_Store
+
+# Make shortcuts
+alias mk make $*
+alias mkclean make clean
+alias mkfclean make fclean
+alias mkre make re
+
+# =============================================================================
+# GIT SHORTCUTS
+# =============================================================================
+
+alias gst git status
+alias gadd git add $*
+alias gc git commit -m $*
+alias gpush git push
+alias gpull git pull
+alias glog git log --oneline --graph --decorate
+alias gdiff git diff
+
+# =============================================================================
+# NAVEGAÇÃO E ARQUIVOS
+# =============================================================================
+
+# Listagem de arquivos
+alias ll ls -la $*
+alias la ls -A $*
+alias l ls -CF $*
+
+# Navegação rápida
+alias .. cd ..
+alias ... cd ../..
+alias .... cd ../../..
+alias ..... cd ../../../..
+
+# Criação de diretórios
+alias mkd mkdir -p $*
+
+# =============================================================================
+# UTILITÁRIOS PARA DESENVOLVIMENTO C
+# =============================================================================
+
+# Inicializar estrutura de projeto C
+alias initc mkdir -p src include obj && touch Makefile src/main.c include/main.h && echo "Estrutura de projeto C criada!"
+
+# Contar linhas de código
+alias countc find . -name "*.c" -o -name "*.h" | xargs wc -l
+
+# Buscar em arquivos C
+alias grepc grep -r --include="*.c" --include="*.h" $*
+
+# Mostrar funções em arquivo C
+alias funcs grep -n "^[a-zA-Z_][a-zA-Z0-9_]*\s*(" $*
+
+# Header info
+alias h42info echo "Header 42 é inserido automaticamente em arquivos .c e .h"

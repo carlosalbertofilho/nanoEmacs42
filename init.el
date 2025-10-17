@@ -423,14 +423,15 @@
   ) ;; Fecha o use-package consult
 
 ;; =============================================================================
-;; GERENCIAMENTO DE ARQUIVOS E QUALIDADE DE VIDA
+;; GERENCIAMENTO DE ARQUIVOS E SHELL
 ;; =============================================================================
 
 ;; Dired-X: Extensões avançadas para o Dired (gerenciador de arquivos padrão)
 ;; Adiciona funcionalidades extras como omit-mode, guess-shell-command, etc.
 ;; Permite ocultar arquivos desnecessários e comandos inteligentes
+;; NOTA: dired-x é built-in do Emacs, não precisa ser instalado via Elpaca
 (use-package dired-x
-  :ensure t
+  :ensure nil  ;; Não instalar via Elpaca (é built-in)
   :config
   ;; Configura dired-omit-mode para ocultar arquivos ocultos (dotfiles)
   ;; Útil para limpar a visualização removendo .DS_Store, .git, etc.
@@ -668,6 +669,108 @@
 ;; Auto reverte arquivos alterados fora do Emacs 
 (global-auto-revert-mode 1)
 (setq auto-revert-interval 1)
+
+;; =============================================================================
+;; ESHELL - Terminal Integrado com Aliases para Desenvolvimento C
+;; =============================================================================
+
+;; Eshell: Terminal nativo do Emacs com integração completa
+;; Funciona em qualquer sistema operacional, incluindo Windows
+;; Permite misturar comandos do sistema com funções Elisp
+;; Configuração com aliases específicos para desenvolvimento em C
+(use-package eshell
+  :config
+  ;; Diretório para aliases personalizados
+  (setq eshell-aliases-file (expand-file-name "eshell-aliases" user-emacs-directory))
+  
+  ;; Configurações de aparência e comportamento
+  (setq eshell-prompt-function
+        (lambda ()
+          (concat
+           ;; Diretório atual (apenas nome, não caminho completo)
+           (propertize (file-name-nondirectory (or (eshell/pwd) "~"))
+                       'face 'font-lock-constant-face)
+           ;; Símbolo do prompt
+           (if (= (user-uid) 0) " # " " $ "))))
+  
+  ;; Histórico persistente
+  (setq eshell-history-size 1000)
+  (setq eshell-save-history-on-exit t)
+  
+  ;; Auto-completação melhorada
+  (setq eshell-cmpl-ignore-case t)
+  
+  ;; Scroll automático
+  (setq eshell-scroll-to-bottom-on-input 'all)
+  
+  ;; Aliases específicos para desenvolvimento C (padrão 42 School)
+  :hook
+  (eshell-mode . (lambda ()
+                   ;; Desabilita numeração de linha no terminal
+                   (display-line-numbers-mode -1)
+                   
+                   ;; Define aliases para desenvolvimento C
+                   (eshell/alias "cc42" "cc -Wall -Wextra -Werror -std=c99 $*")
+                   (eshell/alias "ccdebug" "cc -Wall -Wextra -Werror -std=c99 -g -fsanitize=address $*")
+                   (eshell/alias "ccfast" "cc -O2 -Wall -Wextra -Werror -std=c99 $*")
+                   
+                   ;; Compilação rápida com nome automático
+                   (eshell/alias "comp" "cc -Wall -Wextra -Werror -std=c99 $1 -o ${1%.*}")
+                   (eshell/alias "compdebug" "cc -Wall -Wextra -Werror -std=c99 -g -fsanitize=address $1 -o ${1%.*}")
+                   
+                   ;; Executar após compilar
+                   (eshell/alias "run" "cc -Wall -Wextra -Werror -std=c99 $1 -o ${1%.*} && ./${1%.*}")
+                   (eshell/alias "rundebug" "cc -Wall -Wextra -Werror -std=c99 -g -fsanitize=address $1 -o ${1%.*} && ./${1%.*}")
+                   
+                   ;; Norminette (se instalada)
+                   (eshell/alias "norm" "norminette $*")
+                   (eshell/alias "normall" "norminette *.c *.h")
+                   
+                   ;; Valgrind para detecção de memory leaks
+                   (eshell/alias "valgrind" "valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $*")
+                   (eshell/alias "vrun" "valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$*")
+                   
+                   ;; GDB - GNU Debugger
+                   (eshell/alias "gdb" "gdb $*")
+                   (eshell/alias "gdbtui" "gdb -tui $*")
+                   
+                   ;; Limpeza de arquivos
+                   (eshell/alias "clean" "rm -f *.o *.out a.out core")
+                   (eshell/alias "cleanall" "rm -f *.o *.out a.out core *~ .*~")
+                   
+                   ;; Make shortcuts
+                   (eshell/alias "mk" "make $*")
+                   (eshell/alias "mkclean" "make clean")
+                   (eshell/alias "mkfclean" "make fclean")
+                   (eshell/alias "mkre" "make re")
+                   
+                   ;; Git shortcuts para projetos C
+                   (eshell/alias "gst" "git status")
+                   (eshell/alias "gadd" "git add $*")
+                   (eshell/alias "gc" "git commit -m $*")
+                   (eshell/alias "gpush" "git push")
+                   (eshell/alias "gpull" "git pull")
+                   
+                   ;; Utilitários de arquivo
+                   (eshell/alias "ll" "ls -la $*")
+                   (eshell/alias "la" "ls -A $*")
+                   (eshell/alias "l" "ls -CF $*")
+                   
+                   ;; Navegação rápida
+                   (eshell/alias ".." "cd ..")
+                   (eshell/alias "..." "cd ../..")
+                   (eshell/alias "...." "cd ../../..")
+                   
+                   ;; Criar estrutura básica de projeto C
+                   (eshell/alias "initc" "mkdir -p src include obj && touch Makefile src/main.c include/main.h")
+                   
+                   ;; Header 42
+                   (eshell/alias "h42" "echo 'Header 42 será inserido automaticamente nos arquivos .c e .h'")))
+  
+  ;; Atalho global para abrir Eshell
+  :bind
+  (("C-c t" . eshell)                ;; C-c t: Abre novo Eshell
+   ("C-c T" . eshell-command)))       ;; C-c T: Executa comando único
 
 ;; =============================================================================
 ;; CONFIGURAÇÃO DE BACKUP E AUTO-SAVE
