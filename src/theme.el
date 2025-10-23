@@ -32,17 +32,39 @@
 ;; Modo de parênteses (parte do tema)
 (show-paren-mode t)
 
+;; Ativa destaque da linha atual
+(global-hl-line-mode 1)
 
-;; 1) Tema externo primeiro
+;; Mostra numero das linhas
+(global-display-line-numbers-mode 1)
+
+;; Mostra o número das colunas 
+(column-number-mode 1)
+
+;; highlight na linha corrente
+(global-hl-line-mode 1)
+
+;; Mostra match entre parenteses
+(show-paren-mode 1)
+
+;; Auto reverte arquivos alterados fora do Emacs 
+(global-auto-revert-mode 1)
+(setq auto-revert-interval 1)
+
+;; =======================================================
+;;THEMAS
+;; =======================================================
+
 ;;(use-package doom-themes
 ;;  :ensure (doom-themes :host github :repo "doomemacs/themes")
 ;;  :config
 ;;  (load-theme 'doom-one t))            ;; escolha o seu Doom favorito
 
-(use-package dracula-theme
-  :ensure (dracula-theme :host github :repo "dracula/emacs")
-  :config
-  (load-theme 'dracula t))
+;;(use-package dracula-theme
+;;  :ensure (dracula-theme :host github :repo "dracula/emacs")
+;;  :config
+;;  (load-theme 'dracula t))
+
 
 ;; Nano Emacs: Interface minimalista e elegante para o Emacs
 ;; Tema moderno inspirado em design minimalista, com elementos visuais limpos
@@ -53,7 +75,7 @@
 (use-package nano
   :ensure (:host github :repo "rougier/nano-emacs")
   ;; :after doom-themes  ;; OU --
-  :after dracula-theme
+  ;; :after dracula-theme
   :init
   ;; Fonte
   (setq nano-font-family-monospaced "Roboto Mono"
@@ -62,25 +84,14 @@
   :config
   (require 'nano-base-colors)
   (require 'nano-faces) (nano-faces)   ;; define faces baseadas na paleta ativa
-  (require 'nano-theme)  (nano-theme)  ;; aplica mapeamentos do NANO
+  (require 'nano-theme)  (nano-theme)  ;;aplica mapeamentos do NANO
+  (require 'nano-modeline)
+  (require 'nano-layout)
+  (require 'nano-splash)
   )
-
-;; Modeline NANO (pacote separado via GNU ELPA)
-(use-package nano-modeline
-  :ensure t
-  :after nano
-  :config
-  (nano-modeline-mode 1))
-
-;; se você usa --daemon, garanta aplicação em novos frames GUI:
-(when (daemonp)
-  (add-hook 'after-make-frame-functions
-            (lambda (f) (with-selected-frame f
-                          (nano-modeline-mode 1)))))
 
  ;; Garante que os elementos da interface permaneçam desativados
   (tool-bar-mode -1)
   (menu-bar-mode -1)
   (scroll-bar-mode -1)
 
-(provide 'my-theme)

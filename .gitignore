@@ -3,6 +3,8 @@ elpaca/
 builds/
 repos/
 straight/
+elpa/
+eshell/
 
 # Arquivos temporários e backup
 backups/
@@ -30,3 +32,6 @@ ido.last
 smex-items
 projectile-bookmarks.eld
 projectile.cache
+forge-database.sqlite
+tramp-connection-history
+ac-comphist.dat

@@ -17,37 +17,27 @@
 ;; =========================================================
 (load (locate-user-emacs-file "src/theme.el") nil 'nomessage)
 
+;; =========================================================
+;; FERRAMENSTAS DE EDIÇÃO
+;; =========================================================
+(load (locate-user-emacs-file "src/edit-tools.el") nil 'nomessage)
 
 ;; =========================================================
-;; SISTEMA DE ATALHOS E DESCOBERTA DE COMANDOS
+;; FERRAMENSTAS DE GERÊNCIA DE ARQUIVOS
 ;; =========================================================
+(load (locate-user-emacs-file "src/file-manager.el") nil 'nomessage)
 
-;; Which-key: Mostra atalhos disponíveis em tempo real
-;; Quando você pressiona um prefixo (como C-x), mostra os comandos disponíveis
-;; GitHub: https://github.com/justbur/emacs-which-key
-(use-package which-key
-  :ensure t
-  :config
-  (which-key-mode)
-  ;; Tempo de espera antes de mostrar a ajuda (em segundos)
-  (setq which-key-idle-delay 0.8)
-  ;; Exibe a janela de ajuda na parte inferior
-  (which-key-setup-side-window-bottom))
-
-;; auto-complete: Extensão de autocompletar inteligente para Emacs
-;; Fornece sugestões enquanto você digita, com interface visual e suporte a fontes de conclusão configuráveis.
-;; GitHub: https://github.com/auto-complete/auto-complete 
-(use-package auto-complete
-  ;; pega direto do GitHub, funciona bem com Elpaca
-  :ensure (auto-complete :host github :repo "auto-complete/auto-complete")
-  :init
-  ;; ajustes opcionais
-  (setq ac-use-menu-map t
-        ac-auto-show-menu 0.2
-        ac-delay 0.0)
-  :config
-  ;; precisa carregar o módulo que define ac-config-default
-  (require 'auto-complete)
-  (require 'auto-complete-config)
-  (ac-config-default)
-  (global-auto-complete-mode 1))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("9c6aa7eb1bde73ba1142041e628827492bd05678df4d9097cda21b1ebcb8f8b9"
+     default)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
