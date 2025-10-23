@@ -12,6 +12,7 @@ auto-saves/
 *.elc
 auto-save-list/
 tramp
+.DS_Store
 
 # Arquivos do Vim/Neovim
 .*.swp
