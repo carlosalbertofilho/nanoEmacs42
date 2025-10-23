@@ -1,7 +1,8 @@
-;;; init.el --- Configuração principal do Nano Emacs -*- lexical-binding: t; -*-
+;;; file-manager.el -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2025 Carlos Filho
 ;;
+;;; Code:
 
 ;; Transient: Framework para interfaces de comando com menus pop-up
 ;; Fornece menus interativos com dicas de teclas e argumentos
@@ -134,7 +135,6 @@
   :bind
   (("C-x d" . dirvish)               ;; Substitui dired padrão (C-x d)
    ;; Atalhos globais para dirvish-side (sidebar como IDE)
-   ("<f9>"    . dirvish-side)         ;; F9: Toggle sidebar (padrão, como VS Code/IntelliJ)
    ("C-c d s" . dirvish-side)         ;; C-c d s: Alternativa para toggle sidebar
    ("C-c d f" . dirvish-side-follow-mode) ;; C-c d f: Auto-seleciona arquivo atual na sidebar
    
@@ -156,56 +156,4 @@
    ("-" . dirvish-side-decrease-width) ;; Diminui largura da sidebar
    ))         ;; Fecha o dirvish
 
-;; TRAMP: Acesso transparente a arquivos remotos
-;; Permite editar arquivos em servidores remotos via SSH, FTP, SCP, etc.
-;; Integra perfeitamente com Dired/Dirvish para navegação remota
-;; 
-;; EXEMPLOS DE USO:
-;; - Arquivo remoto via SSH: /ssh:user@servidor.com:/home/user/arquivo.txt
-;; - Como root local: /sudo::/etc/hosts
-;; - Como outro usuário: /su:username:/home/username/arquivo.txt
-;; - Via SCP: /scp:user@servidor.com:/path/to/file
-;; - Múltiplos hops: /ssh:user@gateway|ssh:user@servidor:/arquivo
-;; 
-;; ATALHOS ÚTEIS:
-;; - C-x C-f: Abrir arquivo (use sintaxe TRAMP)
-;; - C-x d: Dirvish em diretório remoto (/ssh:user@host:/path/)
-;; - M-x tramp-cleanup-all-connections: Limpa todas conexões
-;; 
-;; GitHub: https://www.gnu.org/software/tramp/
-(use-package tramp
-  :ensure nil  ;; Não instalar via Elpaca (é built-in)
-  :config
-  ;; Habilita Dirvish completo sobre conexões TRAMP via SSH
-  ;; Melhora performance de processos assíncronos remotos
-  ;; Referência: https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes
-  (connection-local-set-profile-variables
-   'remote-direct-async-process
-   '((tramp-direct-async-process . t)))
-  (connection-local-set-profiles
-   '(:application tramp :protocol "ssh")
-   'remote-direct-async-process)
-  
-  ;; Otimizações de performance para conexões remotas
-  (setq tramp-verbose 0)                    ;; Reduz logs verbosos (0-10, 0=silencioso)
-  (setq tramp-chunksize 2000)               ;; Tamanho dos chunks de transferência (bytes)
-  (setq tramp-ssh-controlmaster-options nil) ;; Desabilita SSH ControlMaster (pode causar problemas)
-  
-  ;; Configurações adicionais para melhor experiência
-  (setq tramp-default-method "ssh")         ;; Método padrão (ssh, scp, ftp, etc.)
-  (setq tramp-auto-save-directory           ;; Diretório para auto-saves remotos
-        (expand-file-name "tramp-auto-saves" user-emacs-directory))
-  (setq tramp-persistency-file-name         ;; Cache de conexões persistentes
-        (expand-file-name "tramp-connection-history" user-emacs-directory))
-  
-  ;; Cache de senhas por sessão (não salva no disco por segurança)
-  (setq password-cache t)
-  (setq password-cache-expiry 3600)         ;; Expira cache de senha após 1 hora
-  
-  ;; Melhora compatibilidade com diferentes shells remotos
-  (setq tramp-shell-prompt-pattern
-        "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>] *\\(\\[[0-9;]*[a-zA-Z] *\\)*")
-  
-  ;; Cria diretório de auto-saves se não existir
-  (unless (file-exists-p tramp-auto-save-directory)
-    (make-directory tramp-auto-save-directory t)))
+

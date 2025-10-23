@@ -27,6 +27,21 @@
 ;; =========================================================
 (load (locate-user-emacs-file "src/file-manager.el") nil 'nomessage)
 
+;; =========================================================
+;; TERMINAL E ACESSO REMOTO (ssh)
+;; =========================================================
+(load (locate-user-emacs-file "src/shell.el") nil 'nomessage)
+
+;; =========================================================
+;; C PARA A 42Rio
+;; =========================================================
+(load (locate-user-emacs-file "src/cpp-dev.el") nil 'nomessage)
+
+;; =========================================================
+;; ELISP DE LEI
+;; =========================================================
+(load (locate-user-emacs-file "src/elisp-dev.el") nil 'nomessage)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

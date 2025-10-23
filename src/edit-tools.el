@@ -1,4 +1,4 @@
-;;; init.el --- Configuração principal do Nano Emacs -*- lexical-binding: t; -*-
+;;; edit-tools.el -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2025 Carlos Filho
 
@@ -116,7 +116,90 @@
         xref-show-definitions-function #'consult-xref)
 
   ;; Configurações adicionais (carregadas após o pacote)
-  ;;:config
+  :config
+  ;; -----------------------------------------------------------------------------
+  ;; COMANDOS DE MODO (C-c prefix) – globais
+  ;; -----------------------------------------------------------------------------
+  (define-key global-map (kbd "C-c M-x") #'consult-mode-command)
+  (define-key global-map (kbd "C-c h")   #'consult-history)
+  (define-key global-map (kbd "C-c k")   #'consult-kmacro)
+  (define-key global-map (kbd "C-c m")   #'consult-man)
+  (define-key global-map (kbd "C-c i")   #'consult-info)
+
+  ;; -----------------------------------------------------------------------------
+  ;; BUFFERS / JANELAS (C-x prefix)
+  ;; -----------------------------------------------------------------------------
+  ;; C-x M-:
+  (define-key global-map (kbd "C-x M-:") #'consult-complex-command)
+
+  ;; C-x b / 4 b / 5 b / t b / r b / p b — usar submaps quando existirem
+  (define-key global-map (kbd "C-x b") #'consult-buffer)
+
+  (when (boundp 'ctl-x-4-map)
+    (define-key ctl-x-4-map (kbd "b") #'consult-buffer-other-window))
+
+  (when (boundp 'ctl-x-5-map)
+    (define-key ctl-x-5-map (kbd "b") #'consult-buffer-other-frame))
+
+  ;; Emacs 27+: tab-prefix-map
+  (if (boundp 'tab-prefix-map)
+      (define-key tab-prefix-map (kbd "b") #'consult-buffer-other-tab)
+    (define-key global-map (kbd "C-x t b") #'consult-buffer-other-tab))
+
+  (when (boundp 'ctl-x-r-map)
+    (define-key ctl-x-r-map (kbd "b") #'consult-bookmark))
+  ;; Projeto (C-x p ...)
+  (if (boundp 'project-prefix-map)
+      (define-key project-prefix-map (kbd "b") #'consult-project-buffer)
+    (define-key global-map (kbd "C-x p b") #'consult-project-buffer))
+
+  ;; -----------------------------------------------------------------------------
+  ;; REGISTRADORES (M-# e M-')
+  ;; -----------------------------------------------------------------------------
+  (define-key global-map (kbd "M-#")   #'consult-register-load)
+  (define-key global-map (kbd "M-'")   #'consult-register-store)
+  (define-key global-map (kbd "C-M-#") #'consult-register)
+
+  ;; -----------------------------------------------------------------------------
+  ;; HISTÓRICO (M-y)
+  ;; -----------------------------------------------------------------------------
+  (define-key global-map (kbd "M-y") #'consult-yank-pop)
+
+  ;; -----------------------------------------------------------------------------
+  ;; NAVEGAÇÃO (M-g prefix) – usar goto-map
+  ;; -----------------------------------------------------------------------------
+  (require 'goto-addr nil t) ;; opcional; garante maps carregados cedo
+  (define-key goto-map (kbd "e")   #'consult-compile-error)
+  (define-key goto-map (kbd "f")   #'consult-flymake)
+  (define-key goto-map (kbd "g")   #'consult-goto-line)
+  (define-key goto-map (kbd "M-g") #'consult-goto-line) ;; alternativo
+  (define-key goto-map (kbd "o")   #'consult-outline)
+  (define-key goto-map (kbd "m")   #'consult-mark)
+  (define-key goto-map (kbd "k")   #'consult-global-mark)
+  (define-key goto-map (kbd "i")   #'consult-imenu)
+  (define-key goto-map (kbd "I")   #'consult-imenu-multi)
+
+  ;; -----------------------------------------------------------------------------
+  ;; BUSCA (M-s prefix) – usar search-map
+  ;; -----------------------------------------------------------------------------
+  (define-key search-map (kbd "d") #'consult-find)
+  (define-key search-map (kbd "c") #'consult-locate)
+  (define-key search-map (kbd "g") #'consult-grep)
+  (define-key search-map (kbd "G") #'consult-git-grep)
+  (define-key search-map (kbd "r") #'consult-ripgrep)
+  (define-key search-map (kbd "l") #'consult-line)
+  (define-key search-map (kbd "L") #'consult-line-multi)
+  (define-key search-map (kbd "k") #'consult-keep-lines)
+  (define-key search-map (kbd "u") #'consult-focus-lines)
+  (define-key search-map (kbd "e") #'consult-isearch-history)
+
+  ;; -----------------------------------------------------------------------------
+  ;; INTEGRAÇÃO COM MINIBUFFER
+  ;; -----------------------------------------------------------------------------
+  (with-eval-after-load 'minibuffer
+    (define-key minibuffer-local-map (kbd "M-s") #'consult-history)
+    (define-key minibuffer-local-map (kbd "M-r") #'consult-history))
+
 )
 
 ;; =============================================================================

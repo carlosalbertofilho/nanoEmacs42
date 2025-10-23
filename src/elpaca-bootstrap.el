@@ -1,4 +1,4 @@
-;;; init.el --- Configuração principal do Nano Emacs -*- lexical-binding: t; -*-
+;;; elpaca-bootstrap.el  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2025 Carlos Filho
 ;;
