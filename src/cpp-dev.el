@@ -11,6 +11,19 @@
 ;;
 ;;
 
+;; =============================================================================
+;; PATH - Sincroniza PATH do shell com o Emacs
+;; =============================================================================
+
+(use-package exec-path-from-shell
+  :ensure t
+  :if (memq window-system '(mac ns x))
+  :config
+  (exec-path-from-shell-initialize))
+
+;; Alternativa manual se não quiser instalar o pacote:
+;; (setenv "PATH" (concat (getenv "PATH") ":" (expand-file-name "~/.local/bin")))
+;; (setq exec-path (append exec-path (list (expand-file-name "~/.local/bin"))))
 
 ;;; Code:
 ;; =============================================================================

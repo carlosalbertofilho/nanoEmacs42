@@ -3,7 +3,7 @@
 ;; Copyright (C) 2025 Carlos Filho
 ;;
 
-
+;;; Code:
 ;; TRAMP: Acesso transparente a arquivos remotos
 ;; Permite editar arquivos em servidores remotos via SSH, FTP, SCP, etc.
 ;; Integra perfeitamente com Dired/Dirvish para navegação remota
@@ -114,12 +114,12 @@
   (defun eshell/cdproj ()
     "Ir para o diretório do projeto detectado pelo Projectile."
     (when (fboundp 'projectile-project-root)
-      (eshell/cd (projectile-project-root))))
-  )
+      (eshell/cd (projectile-project-root)))))
 
 ;; Atalho rápido para abrir o Eshell
 (global-set-key (kbd "C-x t e") #'eshell)
-;; Atalhos locais do eshell
-(with-eval-after-load 'eshell
+
+;; Atalhos locais do eshell - carrega DEPOIS que o eshell for iniciado
+(with-eval-after-load 'em-hist
   (define-key eshell-mode-map (kbd "C-l") #'eshell/clear)
   (define-key eshell-mode-map (kbd "C-c C-k") #'eshell-kill-input))
