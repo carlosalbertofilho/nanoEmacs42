@@ -27,13 +27,33 @@
 ;; =============================================================================
 
 ;; Usa espaços ao invés de tabs, com largura de 4 espaços (padrão 42)
+
+(defun my/smart-tab ()
+  "Insere TAB literal no meio da linha, indenta no início."
+  (interactive)
+  (if (and (not (use-region-p))
+           (save-excursion
+             (skip-chars-backward " \t")
+             (bolp)))
+      ;; Estamos no início da linha (só whitespace antes): indenta
+      (c-indent-line-or-region)
+    ;; Estamos no meio da linha: insere TAB literal
+    (insert "\t")))
+
 (defun my/c-mode-42-setup ()
-  "Convenções 42 para C."
-  (setq indent-tabs-mode nil
+  "Convenções 42 para C."
+  (setq indent-tabs-mode t
         c-basic-offset 4
+        tab-width 4
+        c-syntactic-indentation t
         fill-column 80)
   (display-fill-column-indicator-mode 1)
   (electric-pair-mode 1)
+  ;; Mostra espaços em branco visualmente
+  (setq-local whitespace-style '(face tabs tab-mark))
+  (whitespace-mode 1)
+  ;; Rebind TAB para comportamento inteligente
+  (local-set-key (kbd "TAB") #'my/smart-tab)
   ;; Checkers: gcc/clang + Norminette (encadeado)
   (when (fboundp 'flycheck-mode) (flycheck-mode 1)))
 
@@ -96,46 +116,46 @@
 (use-package flycheck
   :ensure t
   :init
-  (global-flycheck-mode 1) ;; Ativa Flycheck globalmente
+  (global-flycheck-mode 1)
   :config
-  ;; Configuração básica
-  (setq flycheck-check-syntax-automatically '(save mode-enabled)
-        flycheck-display-errors-delay 0.3)
+  ;; Configuração mais agressiva para detectar erros rapidamente
+  (setq flycheck-check-syntax-automatically '(save idle-change new-line mode-enabled)
+        flycheck-idle-change-delay 0.5
+        flycheck-display-errors-delay 0.1)
 
-  ;; -----------------------------------------------------------------------------
-  ;; Custom Checker: Norminette
-  ;; -----------------------------------------------------------------------------
-  (flycheck-define-checker c-norminette
-    "Checker personalizado para a Norminette (42)."
-    :command ("norminette" source)
-    :error-patterns
-    ((error line-start (file-name) ":" line ":" (message) line-end)
-     (error line-start (file-name) ": Error: line: " line (* nonl) ": " (message) line-end)
-     ;; Alguns formatos de saída da norminette podem variar, então você pode adaptar.
-     ;; Se necessário, use regex mais genérico:
-     ;; (error line-start (file-name) ":" line ":" (message))
-     )
-    :modes (c-mode c++-mode))
+  ;; Configuração do compilador
+  (setq flycheck-c/c++-clang-executable "clang"
+        flycheck-c/c++-gcc-executable "gcc")
 
-  ;; -----------------------------------------------------------------------------
-  ;; Integração do Checker
-  ;; -----------------------------------------------------------------------------
-  ;; Preferir clang se existir, senão gcc
-  (setq flycheck-c/c++-compiler 'clang) ;; ajuste para 'gcc se preferir
+  ;; Adiciona flags úteis para detectar mais erros
+  (setq flycheck-clang-args '("-Wall" "-Wextra" "-pedantic" "-std=c99")
+        flycheck-gcc-args '("-Wall" "-Wextra" "-pedantic" "-std=c99"))
 
-  ;; Adiciona o checker da Norminette à lista de verificadores C
-  (add-to-list 'flycheck-checkers 'c-norminette)
+  ;; ---------------------------------------------------------------------------
+  ;; Custom Checker: Norminette (só adiciona se existir)
+  ;; ---------------------------------------------------------------------------
+  (when (executable-find "norminette")
+    (flycheck-define-checker c-norminette
+      "Checker personalizado para a Norminette (42)."
+      :command ("norminette" source)
+      :error-patterns
+      ((error line-start (file-name) ":" line ":" column ":" (message) line-end)
+       (error line-start (file-name) ": Error!" line-end)
+       (warning line-start (file-name) ":" line ":" (message) line-end))
+      :modes c-mode)
 
-  ;; Define ordem de execução (Norminette depois do GCC/Clang)
-  ;; Norminette só em C (já que a 42 foca C)
-  (when (memq 'c-norminette flycheck-checkers)
+    ;; Adiciona o checker da Norminette
+    (add-to-list 'flycheck-checkers 'c-norminette)
+
+    ;; Define ordem: primeiro clang/gcc, depois norminette
     (flycheck-add-next-checker 'c/c++-clang 'c-norminette t)
-    (flycheck-add-next-checker 'c/c++-gcc   'c-norminette t))
+    (flycheck-add-next-checker 'c/c++-gcc 'c-norminette t))
 
-  ;; -----------------------------------------------------------------------------
+  ;; ---------------------------------------------------------------------------
   ;; Atalho útil
-  ;; -----------------------------------------------------------------------------
+  ;; ---------------------------------------------------------------------------
   (with-eval-after-load 'cc-mode
+    (define-key c-mode-map (kbd "C-c !") #'flycheck-list-errors)
     (define-key c-mode-map (kbd "C-c n") #'flycheck-buffer)))
 
 ;; -----------------------------------------------------------------------------
