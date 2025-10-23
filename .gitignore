@@ -3,6 +3,8 @@ elpaca/
 builds/
 repos/
 straight/
+elpa/
+eshell/
 
 # Arquivos temporários e backup
 backups/
@@ -12,6 +14,7 @@ auto-saves/
 *.elc
 auto-save-list/
 tramp
+.DS_Store
 
 # Arquivos do Vim/Neovim
 .*.swp
@@ -29,3 +32,6 @@ ido.last
 smex-items
 projectile-bookmarks.eld
 projectile.cache
+forge-database.sqlite
+tramp-connection-history
+ac-comphist.dat
