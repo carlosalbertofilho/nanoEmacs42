@@ -55,16 +55,30 @@ xhost +SI:localuser:$(id -un)
 docker run -it --rm \
   --net=host \
   -e DISPLAY=:0 \
-  -v /tmp/.X11-unix:/tmp/.X11-unix \
-  -v $HOME/Projects:/home/$(whoami)/Projects \
-  -v $HOME/.Xauthority:/home/$(whoami)/.Xauthority:ro \
-  -v $HOME/.ssh:/home/$(whoami)/.ssh \
-  --ipc=host \
-  --privileged \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:z \
+  -v $HOME/Documents:/home/user/Documents:z \
+  -v $HOME/.Xauthority:/home/user/.Xauthority:ro,z \
+  -v $HOME/.ssh:/home/user/.ssh:z \
   -v /dev/shm:/dev/shm \
   --name nanoemacs \
   nanoemacs bash
 
+# Configure o ambiente no Host:
+eval $(ssh-agent -s)
+ssh-add ~/.ssh/csilva-d
+
+# Executa o contêiner e, logo após, corrige as permissões dos volumes
+docker run -it --rm \
+  --net=host \
+  -e DISPLAY=:0 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:z \
+  -v $HOME/Documents:/home/user/Documents:z \
+  -v $HOME/.Xauthority:/root/.Xauthority:ro,z \
+  -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
+  -v $SSH_AUTH_SOCK:$SSH_AUTH_SOCK \
+  -v /dev/shm:/dev/shm \
+  --name nanoemacs \
+  nanoemacs /bin/bash
 # Dentro do container, execute o Emacs
 emacs
 ```
