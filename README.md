@@ -56,10 +56,10 @@ docker run -it --rm \
   --net=host \
   -e DISPLAY=:0 \
   -v /tmp/.X11-unix:/tmp/.X11-unix:z \
-  -v $HOME/Documents:/home/user/Documents:z \
-  -v $HOME/Projects:/home/user/Projects:z \
-  -v $HOME/.Xauthority:/home/user/.Xauthority:ro,z \
-  -v $HOME/.ssh:/home/user/.ssh:z \
+  -v $HOME/Documents:/home/$(whoami)/Documents:z \
+  -v $HOME/Projects:/home/$(whoami)/Projects:z \
+  -v $HOME/.Xauthority:/home/$(whoami)/.Xauthority:ro,z \
+  -v $HOME/.ssh:/home/$(whoami)/.ssh:z \
   -v /dev/shm:/dev/shm \
   --name nanoemacs \
   nanoemacs bash
