@@ -51,15 +51,17 @@ docker build --build-arg UNAME=$(whoami) --build-arg UID=$(id -u) -t nanoemacs .
 # Aplique a permissão de acesso ao X11
 xhost +SI:localuser:$(id -un)
 
+
 # Execute o container com compartilhamento de volumes
 docker run -it --rm \
   --net=host \
-  -e DISPLAY=:0 \
+  -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix:/tmp/.X11-unix:z \
-  -v $HOME/Documents:/home/$(whoami)/Documents:z \
-  -v $HOME/Projects:/home/$(whoami)/Projects:z \
-  -v $HOME/.Xauthority:/home/$(whoami)/.Xauthority:ro,z \
-  -v $HOME/.ssh:/home/$(whoami)/.ssh:z \
+  -v "$HOME/Documents":/home/"$(whoami)"/Documents:z \
+  -v "$HOME/Projects":/home/"$(whoami)"/Projects:z \
+  -v "$HOME/.gitconfig":/home/"$(whoami)"/.gitconfig:ro,z \
+  -v "$HOME/.Xauthority":/home/"$(whoami)"/.Xauthority:ro,z \
+  -v "$HOME/.ssh":/home/"$(whoami)"/.ssh:z \
   -v /dev/shm:/dev/shm \
   --name nanoemacs \
   nanoemacs bash
