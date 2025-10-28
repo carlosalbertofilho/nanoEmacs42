@@ -99,7 +99,7 @@
                   "cc42 $* && valgrind --leak-check=full ./a.out")
     ;; Norminette local (caso tenha instalada via pip)
     (when (executable-find "norminette")
-      (eshell/alias "norm42"
+      (eshell/alias "n42"
                     "norminette $*")))
 
   ;; ------------------------------

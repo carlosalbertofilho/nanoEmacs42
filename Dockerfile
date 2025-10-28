@@ -1,47 +1,91 @@
-FROM carlosalbertofilho/nanoemacs:20251018
+# Usa a imagem padrão do Debian
+FROM debian:latest
 
-USER user
+# Define argumentos de build para o nome e ID do usuário
+ARG UNAME
+ARG UID
 
-# Set timezone
-ENV TZ="America/Sao_Paulo"
+# Atualiza a lista de pacotes e instala as dependências
+RUN apt-get update && \
+    apt-get install -y \
+    git \
+    ripgrep \
+    fd-find \
+    fzf \
+    build-essential \
+    curl \
+    coreutils \
+    pandoc \
+    python3 \
+    python3-pip \
+    clang \
+    gdb \
+    cmake \
+    clangd \
+    valgrind \
+    sudo \
+    wget \
+    unzip \
+    ispell \
+    fontconfig \
+    libgccjit-14-dev \
+    emacs \
+    gnupg \
+    gnupg2 \
+    gpg-agent \
+    pinentry-curses \
+    pinentry-gtk2 \
+    dirmngr \
+    && rm -rf /var/lib/apt/lists/*
 
-# Definir variáveis de ambiente com valores padrão
-ENV USER_NAME=csilva-d
-ENV USER_UID=102068
-ENV GROUP_NAME=2025_rio-de-janeiro
-ENV GROUP_GID=4225
+# Cria um grupo e um usuário com o mesmo UID e GID do host
+RUN groupadd -g $UID $UNAME
+RUN useradd -u $UID -g $UID -m -s /bin/bash $UNAME
+RUN echo "$UNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Criar grupo e usuário com IDs das variáveis de ambiente
-RUN sudo groupadd --gid ${GROUP_GID} ${GROUP_NAME} && \
-    sudo useradd --uid ${USER_UID} --gid ${GROUP_GID} --create-home --shell /bin/bash ${USER_NAME} && \
-    sudo passwd -d ${USER_NAME} && \
-    echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers
+# Define o novo usuário como o usuário padrão
+USER $UNAME
 
-# Update font cache
-RUN sudo fc-cache -fv
+# Define o diretório de trabalho no home do usuário
+WORKDIR /home/$UNAME
 
-# Update library cache
-RUN sudo ldconfig
+# Configura o GPG para o usuário
+RUN mkdir -p ~/.gnupg && \
+    chmod 700 ~/.gnupg && \
+    echo "use-agent" > ~/.gnupg/gpg.conf && \
+    echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf && \
+    echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf && \
+    chmod 600 ~/.gnupg/gpg.conf ~/.gnupg/gpg-agent.conf
 
-# Set environment variables
+# Baixa a chave GPG especificada (com retry em caso de falha)
+RUN for i in 1 2 3; do \
+        gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 71D78F6E8C7170B2 && break || \
+        gpg --keyserver hkps://keys.openpgp.org --recv-keys 71D78F6E8C7170B2 && break || \
+        sleep 5; \
+    done || echo "Warning: Could not download GPG key 71D78F6E8C7170B2"
+
+# Instala a norminette da 42
+RUN python3 -m pip install -U norminette --break-system-packages
+
+# Cria o diretório de configuração do Emacs
+RUN mkdir -p ~/.config/emacs
+
+# Copia os arquivos de configuração do Emacs do diretório local
+COPY --chown=$UNAME:$UNAME . /home/$UNAME/.config/emacs/
+
+
+# Instala as fontes Nerd Fonts (JetBrains Mono e Fira Code)
+RUN mkdir -p ~/.local/share/fonts && \
+    cd ~/.local/share/fonts && \
+    wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip && \
+    wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && \
+    unzip -o JetBrainsMono.zip && \
+    unzip -o FiraCode.zip && \
+    rm JetBrainsMono.zip FiraCode.zip && \
+    fc-cache -fv
+
+# Define variáveis de ambiente
 ENV TERM=xterm-256color
-ENV PATH="/usr/local/bin:$HOME/.local/bin:$PATH"
 
-# Criar diretório de configuração do emacs ANTES de mudar o usuário
-# RUN mkdir -p "/home/${USER_NAME}/.config/emacs" && \
-#     chown -R ${USER_UID}:${GROUP_GID} "/home/${USER_NAME}/.config" && \
-#     chown -R ${USER_UID}:${GROUP_GID} "/home/${USER_NAME}"
-
-# Switch to user only at the very end
-#USER ${USER_NAME}
-WORKDIR /home/${USER_NAME}
-
-# # Copy emacs config files
-# COPY --chown=${USER_UID}:${GROUP_GID} . /${HOME}/.config/emacs/
-
-
-# # Inicializa o Emacs para baixar e instalar pacotes automaticamente com Elpaca
-# RUN emacs --batch --eval="(progn (load-file \"~/.config/emacs/init.el\") (kill-emacs))" || true
-
-
-CMD ["/bin/bash"]
+# Inicializa o Emacs para baixar e instalar pacotes automaticamente com Elpaca
+RUN emacs --batch --eval="(progn (load-file \"~/.config/emacs/init.el\") (kill-emacs))" || true
