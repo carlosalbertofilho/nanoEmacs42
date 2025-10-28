@@ -57,6 +57,7 @@ docker run -it --rm \
   -e DISPLAY=:0 \
   -v /tmp/.X11-unix:/tmp/.X11-unix:z \
   -v $HOME/Documents:/home/user/Documents:z \
+  -v $HOME/Projects:/home/user/Projects:z \
   -v $HOME/.Xauthority:/home/user/.Xauthority:ro,z \
   -v $HOME/.ssh:/home/user/.ssh:z \
   -v /dev/shm:/dev/shm \
