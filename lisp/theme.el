@@ -1,4 +1,4 @@
-;;; init.el --- Configuração principal do Nano Emacs -*- lexical-binding: t; -*-
+;;; theme.el --- Configuração theme -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2025 Carlos Filho
 ;;
@@ -55,10 +55,10 @@
 ;;THEMAS
 ;; =======================================================
 
-;;(use-package doom-themes
-;;  :ensure (doom-themes :host github :repo "doomemacs/themes")
-;;  :config
-;;  (load-theme 'doom-one t))            ;; escolha o seu Doom favorito
+(use-package doom-themes
+  :ensure (doom-themes :host github :repo "doomemacs/themes")
+  :config
+  (load-theme 'doom-one t))            ;; escolha o seu Doom favorito
 
 ;;(use-package dracula-theme
 ;;  :ensure (dracula-theme :host github :repo "dracula/emacs")
@@ -69,9 +69,6 @@
 ;; Nano Emacs: Interface minimalista e elegante para o Emacs
 ;; Tema moderno inspirado em design minimalista, com elementos visuais limpos
 ;; GitHub: https://github.com/rougier/nano-emacs
-
-
-;; 2) Depois, NANO “por cima” herdando a paleta atual
 (use-package nano
   :ensure (:host github :repo "rougier/nano-emacs")
   ;; :after doom-themes  ;; OU --
@@ -91,7 +88,9 @@
   )
 
  ;; Garante que os elementos da interface permaneçam desativados
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  ;;(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
 
+(provide 'theme)
+;;; theme.el ends here

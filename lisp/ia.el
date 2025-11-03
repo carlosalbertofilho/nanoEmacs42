@@ -12,4 +12,5 @@
     (setq gptel-api-key (getenv "OPENAI_API_KEY")))
 
 (provide 'ia)
+;;; ia.el ends here
 
