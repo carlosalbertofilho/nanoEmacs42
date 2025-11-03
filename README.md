@@ -67,10 +67,6 @@ docker run -it --rm \
   --name nanoemacs \
   nanoemacs bash
 
-# Configure o ambiente no Host:
-eval $(ssh-agent -s)
-ssh-add ~/.ssh/csilva-d
-
 # Executa o contêiner e, logo após, corrige as permissões dos volumes
 docker run -it --rm \
   --net=host \

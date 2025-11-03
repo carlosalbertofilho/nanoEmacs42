@@ -50,7 +50,7 @@
 ;; =========================================================
 ;; INTELIGÊNCIA ARTIFICIAL
 ;; =========================================================
-(load (locate-user-emacs-file "lisp/IA.el") nil 'nomessage)
+(load (locate-user-emacs-file "lisp/ia.el") nil 'nomessage)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
