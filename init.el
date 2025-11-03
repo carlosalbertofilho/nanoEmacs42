@@ -42,6 +42,16 @@
 ;; =========================================================
 (load (locate-user-emacs-file "lisp/elisp-dev.el") nil 'nomessage)
 
+;; =========================================================
+;; ORG MODE E MARKDOWN
+;; =========================================================
+(load (locate-user-emacs-file "lisp/org.el") nil 'nomessage)
+
+;; =========================================================
+;; INTELIGÊNCIA ARTIFICIAL
+;; =========================================================
+(load (locate-user-emacs-file "lisp/IA.el") nil 'nomessage)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

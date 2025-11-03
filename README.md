@@ -56,6 +56,7 @@ xhost +SI:localuser:$(id -un)
 docker run -it --rm \
   --net=host \
   -e DISPLAY=$DISPLAY \
+  -e OPENAI_API_KEY=$OPENAI_API_KEY \
   -v /tmp/.X11-unix:/tmp/.X11-unix:z \
   -v "$HOME/Documents":/home/"$(whoami)"/Documents:z \
   -v "$HOME/Projects":/home/"$(whoami)"/Projects:z \
@@ -73,10 +74,8 @@ ssh-add ~/.ssh/csilva-d
 # Executa o contêiner e, logo após, corrige as permissões dos volumes
 docker run -it --rm \
   --net=host \
-  -e DISPLAY=:0 \
-  -v /tmp/.X11-unix:/tmp/.X11-unix:z \
   -v $HOME/Documents:/home/user/Documents:z \
-  -v $HOME/.Xauthority:/root/.Xauthority:ro,z \
+  -e OPENAI_API_KEY=$OPENAI_API_KEY \
   -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
   -v $SSH_AUTH_SOCK:$SSH_AUTH_SOCK \
   -v /dev/shm:/dev/shm \

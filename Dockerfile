@@ -74,18 +74,27 @@ RUN mkdir -p ~/.config/emacs
 COPY --chown=$UNAME:$UNAME . /home/$UNAME/.config/emacs/
 
 
-# Instala as fontes Nerd Fonts (JetBrains Mono e Fira Code)
+# Instala as fontes Nerd Fonts
 RUN mkdir -p ~/.local/share/fonts && \
     cd ~/.local/share/fonts && \
     wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip && \
     wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && \
+    wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Iosevka.zip && \
+    wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip && \
+    wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip && \
     unzip -o JetBrainsMono.zip && \
     unzip -o FiraCode.zip && \
-    rm JetBrainsMono.zip FiraCode.zip && \
+    unzip -o Iosevka.zip && \
+    unzip -o Hack.zip && \
+    unzip -o Meslo.zip && \
+    rm JetBrainsMono.zip FiraCode.zip Iosevka.zip Hack.zip Meslo.zip && \
     fc-cache -fv
 
 # Define variáveis de ambiente
 ENV TERM=xterm-256color
+
+# Defini o usuário da intra 42
+ENV FT_LOGIN=csilva-d
 
 # Inicializa o Emacs para baixar e instalar pacotes automaticamente com Elpaca
 RUN emacs --batch --eval="(progn (load-file \"~/.config/emacs/init.el\") (kill-emacs))" || true
