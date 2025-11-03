@@ -74,13 +74,14 @@ ssh-add ~/.ssh/csilva-d
 # Executa o contêiner e, logo após, corrige as permissões dos volumes
 docker run -it --rm \
   --net=host \
-  -v $HOME/Documents:/home/user/Documents:z \
   -e OPENAI_API_KEY=$OPENAI_API_KEY \
-  -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
-  -v $SSH_AUTH_SOCK:$SSH_AUTH_SOCK \
+  -v "$HOME/Documents":/home/"$(whoami)"/Documents:z \
+  -v "$HOME/Projects":/home/"$(whoami)"/Projects:z \
+  -v "$HOME/.gitconfig":/home/"$(whoami)"/.gitconfig:ro,z \
+  -v "$HOME/.ssh":/home/"$(whoami)"/.ssh:z \
   -v /dev/shm:/dev/shm \
   --name nanoemacs \
-  nanoemacs /bin/bash
+  nanoemacs bash
 # Dentro do container, execute o Emacs
 emacs
 ```
