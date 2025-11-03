@@ -10,37 +10,37 @@
 ;; =========================================================
 ;; BOOTSTRAP DO ELPACA (Gerenciador de Pacotes)
 ;; =========================================================
-(load (locate-user-emacs-file "src/elpaca-bootstrap.el") nil 'nomessage)
+(load (locate-user-emacs-file "lisp/elpaca-bootstrap.el") nil 'nomessage)
 
 ;; =========================================================
 ;; APARÊNCIA E TIPOGRAFIA
 ;; =========================================================
-(load (locate-user-emacs-file "src/theme.el") nil 'nomessage)
+(load (locate-user-emacs-file "lisp/theme.el") nil 'nomessage)
 
 ;; =========================================================
 ;; FERRAMENSTAS DE EDIÇÃO
 ;; =========================================================
-(load (locate-user-emacs-file "src/edit-tools.el") nil 'nomessage)
+(load (locate-user-emacs-file "lisp/edit-tools.el") nil 'nomessage)
 
 ;; =========================================================
 ;; FERRAMENSTAS DE GERÊNCIA DE ARQUIVOS
 ;; =========================================================
-(load (locate-user-emacs-file "src/file-manager.el") nil 'nomessage)
+(load (locate-user-emacs-file "lisp/file-manager.el") nil 'nomessage)
 
 ;; =========================================================
 ;; TERMINAL E ACESSO REMOTO (ssh)
 ;; =========================================================
-(load (locate-user-emacs-file "src/shell.el") nil 'nomessage)
+(load (locate-user-emacs-file "lisp/shell.el") nil 'nomessage)
 
 ;; =========================================================
 ;; C PARA A 42Rio
 ;; =========================================================
-(load (locate-user-emacs-file "src/cpp-dev.el") nil 'nomessage)
+(load (locate-user-emacs-file "lisp/cpp-dev.el") nil 'nomessage)
 
 ;; =========================================================
 ;; ELISP DE LEI
 ;; =========================================================
-(load (locate-user-emacs-file "src/elisp-dev.el") nil 'nomessage)
+(load (locate-user-emacs-file "lisp/elisp-dev.el") nil 'nomessage)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
