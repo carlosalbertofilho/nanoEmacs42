@@ -24,6 +24,7 @@ RUN apt-get update && \
     clangd \
     valgrind \
     sudo \
+    locales \
     wget \
     unzip \
     ispell \
@@ -37,6 +38,16 @@ RUN apt-get update && \
     pinentry-gtk2 \
     dirmngr \
     && rm -rf /var/lib/apt/lists/*
+
+# 2. Gera o locale pt_BR.UTF-8
+RUN sed -i -e 's/# pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/' /etc/locale.gen && \
+    /usr/sbin/locale-gen
+
+# 3. DEFINE AS VARIÁVEIS CRUCIAIS PARA O MAKE
+# O LC_ALL é o mais importante para forçar a codificação
+ENV LANG="pt_BR.UTF-8" \
+    LANGUAGE="pt_BR:pt" \
+    LC_ALL="pt_BR.UTF-8"
 
 # Cria um grupo e um usuário com o mesmo UID e GID do host
 RUN groupadd -g $UID $UNAME

@@ -72,6 +72,7 @@ docker run -it --rm \
   --net=host \
   -e OPENAI_API_KEY=$OPENAI_API_KEY \
   -v "$HOME/Documents":/home/"$(whoami)"/Documents:z \
+  -v "$HOME/UERJ":/home/"$(whoami)"/UERJ:z \
   -v "$HOME/Projects":/home/"$(whoami)"/Projects:z \
   -v "$HOME/.gitconfig":/home/"$(whoami)"/.gitconfig:ro,z \
   -v "$HOME/.ssh":/home/"$(whoami)"/.ssh:z \
