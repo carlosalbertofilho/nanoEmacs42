@@ -5,6 +5,7 @@ repos/
 straight/
 elpa/
 eshell/
+eln-cache
 
 # Arquivos temporários e backup
 backups/

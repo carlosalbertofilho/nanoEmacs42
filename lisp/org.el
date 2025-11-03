@@ -7,15 +7,15 @@
 ;;; Code:
 
 
-(use-package org
-  :ensure t
-  :after elpaca
-  :config
-  (setq org-ellipsis " ▼")
-  (setq org-log-done 'time)
-  (setq org-hide-leading-stars t)
-  (setq org-startup-indented t)
-  (add-hook 'org-mode-hook 'org-indent-mode))
+;(use-package org
+;  :ensure t
+;  :after elpaca
+;  :config
+;  (setq org-ellipsis " ▼")
+;  (setq org-log-done 'time)
+;  (setq org-hide-leading-stars t)
+;  (setq org-startup-indented t)
+;  (add-hook 'org-mode-hook 'org-indent-mode))
 
 (use-package markdown-mode
   :ensure t
