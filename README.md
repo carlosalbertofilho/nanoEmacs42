@@ -41,33 +41,38 @@ Este projeto inclui documentação detalhada em português:
 git clone https://github.com/carlosalbertofilho/nanoEmacs42.git
 cd nanoEmacs42
 
-# Construa a imagem Docker
+# Com Podman
+podman build --build-arg UNAME=$(whoami) --build-arg UID=$(id -u) -t nanoemacs .
+
+# Com Docker
 docker build --build-arg UNAME=$(whoami) --build-arg UID=$(id -u) -t nanoemacs .
 ```
 
 ### Executando o Container
-
+Com podman
 ```bash
-# Aplique a permissão de acesso ao X11
-xhost +SI:localuser:$(id -un)
-
-
-# Execute o container com compartilhamento de volumes
-docker run -it --rm \
+podman run -it --rm \
   --net=host \
-  -e DISPLAY=$DISPLAY \
-  -e OPENAI_API_KEY=$OPENAI_API_KEY \
-  -v /tmp/.X11-unix:/tmp/.X11-unix:z \
-  -v "$HOME/Documents":/home/"$(whoami)"/Documents:z \
-  -v "$HOME/Projects":/home/"$(whoami)"/Projects:z \
-  -v "$HOME/.gitconfig":/home/"$(whoami)"/.gitconfig:ro,z \
-  -v "$HOME/.Xauthority":/home/"$(whoami)"/.Xauthority:ro,z \
-  -v "$HOME/.ssh":/home/"$(whoami)"/.ssh:z \
+  --userns=keep-id \
+  --user "$(id -u)":"$(id -g)" \
+  --security-opt label=disable \
+  -e OPENAI_API_KEY="$OPENAI_API_KEY" \
+  -e HOME="/home/$(id -un)" \
+  -v "$HOME/Documents":/home/"$(id -un)"/Documents:rw \
+  -v "$HOME/UERJ":/home/"$(id -un)"/UERJ:rw \
+  -v "$HOME/Projects":/home/"$(id -un)"/Projects:rw \
+  -v "$HOME/.gitconfig":/home/"$(id -un)"/.gitconfig:ro \
+  -v "$HOME/.ssh":/home/"$(id -un)"/.ssh:ro \
   -v /dev/shm:/dev/shm \
+  --workdir /home/"$(id -un)"/Projects \
   --name nanoemacs \
   nanoemacs bash
 
-# Executa o contêiner e, logo após, corrige as permissões dos volumes
+```
+
+Com docker:
+```bash
+# Execute o container com compartilhamento de volumes
 docker run -it --rm \
   --net=host \
   -e OPENAI_API_KEY=$OPENAI_API_KEY \
